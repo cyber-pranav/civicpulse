@@ -1,0 +1,7 @@
+runtime: python311
+
+entrypoint: gunicorn -k uvicorn.workers.UvicornWorker backend.main:app -w 1
+
+handlers:
+- url: /.*
+  script: auto

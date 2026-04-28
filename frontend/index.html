@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CivicPulse - Election Readiness</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#a3c9ff",
+                        "inverse-surface": "#2f3133",
+                        "surface-dim": "#dadadc",
+                        "tertiary-container": "#00562b",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#00210d",
+                        "tertiary-fixed-dim": "#84d99b",
+                        "surface-container-highest": "#e2e2e5",
+                        "surface-container-low": "#f3f3f6",
+                        "on-tertiary-container": "#78cb8f",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#410003",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#004882",
+                        "tertiary": "#003c1c",
+                        "on-surface": "#1a1c1e",
+                        "surface-container-high": "#e8e8ea",
+                        "surface-tint": "#27609d",
+                        "secondary": "#bb0018",
+                        "on-tertiary-fixed-variant": "#005229",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f9f9fc",
+                        "surface-variant": "#e2e2e5",
+                        "on-primary-fixed": "#001c38",
+                        "outline": "#727781",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#ffb3ac",
+                        "inverse-primary": "#a3c9ff",
+                        "primary-container": "#004b87",
+                        "primary-fixed": "#d3e4ff",
+                        "secondary-container": "#e0292d",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1a1c1e",
+                        "tertiary-fixed": "#a0f5b5",
+                        "surface-container": "#eeeef0",
+                        "surface": "#f9f9fc",
+                        "background": "#f9f9fc",
+                        "secondary-fixed": "#ffdad6",
+                        "on-surface-variant": "#424750",
+                        "on-secondary-fixed-variant": "#930010",
+                        "primary": "#003461",
+                        "on-primary-container": "#8abcff",
+                        "on-secondary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c2c6d1",
+                        "inverse-on-surface": "#f0f0f3"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        lg: "2rem",
+                        margin: "max(24px, 5vw)",
+                        gutter: "24px",
+                        xl: "3rem",
+                        md: "1.5rem",
+                        sm: "1rem",
+                        base: "4px",
+                        xs: "0.5rem"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "display-lg": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "label-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "0px", fontWeight: "600" }],
+                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.5px", fontWeight: "500" }],
+                        "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0.5px", fontWeight: "400" }],
+                        "title-lg": ["22px", { lineHeight: "28px", letterSpacing: "0px", fontWeight: "500" }],
+                        "display-lg": ["57px", { lineHeight: "64px", letterSpacing: "-0.25px", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", letterSpacing: "0.25px", fontWeight: "400" }],
+                        "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.1px", fontWeight: "500" }],
+                        "headline-md": ["28px", { lineHeight: "36px", letterSpacing: "0px", fontWeight: "600" }]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .jargon-term {
+            text-decoration: underline;
+            text-decoration-style: dashed;
+            cursor: help;
+        }
+    </style>
+    <script src="/app.js"></script>
+</head>
+
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col pb-24 md:pb-0" x-data="civicPulse()" x-init="init()">
+    <!-- TopAppBar -->
+    <header class="bg-white dark:bg-slate-900 flex justify-between items-center h-16 px-4 md:px-8 w-full sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-blue-900 dark:text-blue-400 font-public-sans text-base font-semibold" style="font-variation-settings: 'FILL' 0;">how_to_vote</span>
+            <h1 class="text-xl font-bold tracking-tight text-blue-900 dark:text-blue-100 font-headline-lg">CivicPulse</h1>
+        </div>
+        
+        <nav class="hidden md:flex items-center gap-6">
+            <a href="#" @click.prevent="tab = 'journey'" :class="tab === 'journey' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Journey</a>
+            <a href="#" @click.prevent="tab = 'candidates'" :class="tab === 'candidates' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Candidates</a>
+            <a href="#" @click.prevent="tab = 'evm'" :class="tab === 'evm' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">EVM Demo</a>
+            <a href="#" @click.prevent="tab = 'resources'" :class="tab === 'resources' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Readiness</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <button @click="toggleContrast()" aria-label="contrast" class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-full active:opacity-80 transition-opacity">
+                <span class="material-symbols-outlined">contrast</span>
+            </button>
+            <button @click="toggleVoice()" aria-label="voice assist" class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-full active:opacity-80 transition-opacity">
+                <span class="material-symbols-outlined" x-text="voiceAssist ? 'record_voice_over' : 'voice_over_off'">record_voice_over</span>
+            </button>
+            <button aria-label="account_circle" class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-full active:opacity-80 transition-opacity">
+                <span class="material-symbols-outlined">account_circle</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Global Loading Overlay -->
+    <div x-show="loading" class="fixed inset-0 bg-white/50 dark:bg-slate-900/50 flex items-center justify-center z-[100] backdrop-blur-sm" style="display: none;">
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+    </div>
+
+    <!-- Onboarding Screen -->
+    <main x-show="showOnboarding" class="flex-grow w-full max-w-[720px] mx-auto bg-surface rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-surface-variant overflow-hidden mt-8">
+        <div class="px-8 pt-12 pb-8 text-center">
+            <span class="material-symbols-outlined text-primary text-5xl mb-4" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
+            <h1 class="font-display-lg text-display-lg text-primary mb-2">Welcome</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">Let's set up your personalized election guide. Just a few quick details.</p>
+        </div>
+        <div class="px-8 pb-12">
+            <form class="space-y-8" @submit.prevent="submitOnboarding()">
+                <div class="flex flex-col space-y-2">
+                    <label class="font-title-lg text-title-lg text-on-surface" for="age">What is your age?</label>
+                    <input x-model="age" class="w-full h-[60px] px-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="age" min="18" name="age" placeholder="e.g., 25" type="number" required />
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label class="font-title-lg text-title-lg text-on-surface" for="location">Where are you voting?</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">location_on</span>
+                        <input x-model="location" class="w-full h-[60px] pl-12 pr-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="location" name="location" placeholder="State or District" type="text" required />
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-6 bg-surface-container-low rounded-xl border border-surface-variant">
+                    <div class="flex items-center space-x-4">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">celebration</span>
+                        <div>
+                            <p class="font-title-lg text-title-lg text-on-surface">First-time Voter?</p>
+                            <p class="font-body-md text-body-md text-on-surface-variant">We'll provide extra guidance for your first time.</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input x-model="isFirstTime" class="sr-only peer" type="checkbox" />
+                        <div class="w-14 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                </div>
+                
+                <!-- Server Message Feedback -->
+                <div x-show="message" class="mt-8 p-6 bg-primary-fixed rounded-xl border border-primary-container/20 flex items-start space-x-4">
+                    <span class="material-symbols-outlined text-primary mt-1" style="font-variation-settings: 'FILL' 1;">info</span>
+                    <div>
+                        <h3 class="font-label-lg text-label-lg text-primary uppercase tracking-wider mb-1">Context</h3>
+                        <p class="font-body-md text-body-md text-on-primary-fixed" x-text="message"></p>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full h-[60px] mt-10 bg-primary text-on-primary font-title-lg text-title-lg rounded-xl flex items-center justify-center space-x-2 hover:bg-primary-container transition-colors active:scale-[0.98] shadow-sm">
+                    <span>Start My Journey</span>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Main Screens Container -->
+    <div x-show="!showOnboarding" class="flex-grow w-full max-w-[720px] mx-auto px-4 py-8 mb-24 md:mb-12" style="display: none;">
+        
+        <!-- Journey Screen -->
+        <div x-show="tab === 'journey' || state === 'ELIGIBILITY_CHECK' || state === 'UNINITIALIZED'">
+            <header class="mb-10">
+                <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Your Civic Journey</h1>
+                <p class="font-body-lg text-body-lg text-on-surface-variant">Follow the trail to ensure you are fully prepared for Election Day.</p>
+            </header>
+
+            <div x-show="urgentWB" class="bg-error-container text-on-error-container p-5 rounded-xl flex items-start gap-4 border border-error/20 mb-8 shadow-sm">
+                <div class="relative flex h-3 w-3 mt-1.5 flex-shrink-0">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+                </div>
+                <div>
+                    <h3 class="font-title-lg text-title-lg mb-1">Verify Registration Deadline Approaching</h3>
+                    <p class="font-body-md text-body-md">You must verify your electoral roll status within the next 48 hours to guarantee your ability to vote.</p>
+                </div>
+            </div>
+
+            <!-- Vertical Progress Stepper -->
+            <div class="pl-2">
+                <template x-for="(step, index) in stepperSteps" :key="index">
+                    <div class="flex gap-6 relative">
+                        <!-- Line -->
+                        <div x-show="index < stepperSteps.length - 1" class="absolute left-[19px] top-[40px] bottom-[-8px] w-[2px] z-0" :class="step.done ? 'bg-tertiary-container' : 'bg-outline-variant'"></div>
+                        
+                        <!-- Icon -->
+                        <div class="z-10 flex-shrink-0 relative">
+                            <!-- Pulse ring for active step -->
+                            <div x-show="step.active && urgentWB && step.label === 'Verify Registration'" class="absolute -inset-1.5 rounded-full border-2 border-error opacity-50 animate-pulse"></div>
+                            <div x-show="step.active && !(urgentWB && step.label === 'Verify Registration')" class="absolute -inset-1.5 rounded-full border-2 border-primary opacity-20 animate-pulse"></div>
+                            
+                            <!-- Circle -->
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative z-10 border" 
+                                :class="{
+                                    'bg-tertiary-container text-on-tertiary-container border-transparent': step.done,
+                                    'bg-primary text-on-primary border-transparent': step.active && !urgentWB,
+                                    'bg-error text-on-error border-transparent': step.active && urgentWB && step.label === 'Verify Registration',
+                                    'bg-surface-variant text-on-surface-variant border-outline-variant/50': step.locked
+                                }">
+                                <span x-show="step.done" class="material-symbols-outlined text-[20px]" data-weight="fill">check</span>
+                                <span x-show="step.active" class="font-label-lg text-label-lg" x-text="index + 1"></span>
+                                <span x-show="step.locked && step.icon !== 'event'" class="material-symbols-outlined text-[20px]">lock</span>
+                                <span x-show="step.locked && step.icon === 'event'" class="material-symbols-outlined text-[20px]" x-text="step.icon"></span>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="pb-10 pt-1 w-full">
+                            <h3 class="font-title-lg text-title-lg mb-1" :class="step.locked ? 'text-on-surface/60' : 'text-on-surface'" x-text="step.label"></h3>
+                            
+                            <!-- Action button for active verify step -->
+                            <div x-show="step.active && step.label === 'Verify Registration'">
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-4">Confirm your details on the electoral roll to secure your ballot.</p>
+                                <button @click="verifyRegistration(true)" class="bg-primary text-on-primary font-label-lg text-label-lg px-6 h-14 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] w-full sm:w-auto shadow-sm">
+                                    <span class="material-symbols-outlined text-[20px]">fact_check</span> Start Verification
+                                </button>
+                            </div>
+                            
+                            <div x-show="step.active && step.label === 'Know Your Candidates'">
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-4">Review the profiles and manifestos of candidates in your constituency.</p>
+                                <button @click="loadCandidates()" class="bg-primary text-on-primary font-label-lg text-label-lg px-6 h-14 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] w-full sm:w-auto shadow-sm">
+                                    <span class="material-symbols-outlined text-[20px]">groups</span> View Candidates
+                                </button>
+                            </div>
+
+                            <div x-show="step.active && step.label === 'Cast Mock Vote'">
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-4">Familiarize yourself with the EVM interface.</p>
+                                <button @click="tab = 'evm'" class="bg-primary text-on-primary font-label-lg text-label-lg px-6 h-14 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] w-full sm:w-auto shadow-sm">
+                                    <span class="material-symbols-outlined text-[20px]">touch_app</span> Open Simulator
+                                </button>
+                            </div>
+
+                            <!-- Countdown for event -->
+                            <div x-show="step.label === 'Election Day Ready'">
+                                <div class="inline-flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg mt-1 border border-surface-variant">
+                                    <span class="material-symbols-outlined text-outline text-[18px]">schedule</span>
+                                    <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider" x-text="'Countdown: ' + deadlines.countdown"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- EVM Demo & Discovery Screen -->
+        <div x-show="tab === 'evm' || state === 'POLLING_READY'">
+            <section class="flex flex-col gap-sm relative rounded-xl overflow-hidden p-xl bg-surface-container-low border border-surface-variant mb-8">
+                <div class="relative z-10 max-w-3xl">
+                    <h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Candidate Discovery &amp; Simulation</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant">Understand your ballot and practice the voting process in a secure, simulated environment.</p>
+                </div>
+            </section>
+
+            <section class="flex flex-col gap-md mb-8">
+                <h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary" data-weight="fill">lightbulb</span> Jargon-Killer
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                    <!-- Cards -->
+                    <div class="bg-surface border border-surface-variant rounded-xl p-md flex flex-col gap-sm shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-primary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                        <h3 class="font-title-lg text-title-lg text-primary">Your Voting Neighborhood</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant" x-html="jargonTooltip('Also known as your Constituency. This determines the specific list of candidates you are eligible to vote for based on your registered address.')"></p>
+                    </div>
+                    <div class="bg-surface border border-surface-variant rounded-xl p-md flex flex-col gap-sm shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-tertiary-container transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                        <h3 class="font-title-lg text-title-lg text-tertiary-container">The Ballot List</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant" x-html="jargonTooltip('The official list of individuals running for office. You will select exactly one option from this list during the actual voting process.')"></p>
+                    </div>
+                    <div class="bg-surface border border-surface-variant rounded-xl p-md flex flex-col gap-sm shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-secondary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                        <h3 class="font-title-lg text-title-lg text-secondary">VVPAT Slip</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant" x-html="jargonTooltip('Voter Verifiable Paper Audit Trail. It is a physical paper slip that briefly appears behind glass, allowing you to visually confirm your vote was recorded correctly.')"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Virtual EVM -->
+            <section class="flex flex-col items-center mt-lg mb-8">
+                <div class="w-full max-w-[720px] flex flex-col gap-md">
+                    <div class="text-center mb-sm">
+                        <h2 class="font-headline-md text-headline-md text-on-surface">Interactive EVM Simulation</h2>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Practice casting your vote below. This is a secure, non-recording simulation.</p>
+                    </div>
+                    <div class="bg-surface-container border border-surface-variant rounded-xl p-md md:p-lg shadow-sm flex flex-col gap-md">
+                        <div class="flex flex-col border border-surface-variant rounded-lg overflow-hidden bg-white">
+                            <!-- Loop through actual candidates -->
+                            <template x-for="cand in candidates" :key="cand.name">
+                                <div class="flex items-center justify-between p-sm border-b border-surface-variant last:border-b-0 hover:bg-surface-container-lowest transition-colors">
+                                    <div class="flex items-center gap-md flex-grow">
+                                        <div class="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-3xl">person</span>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="font-title-lg text-title-lg text-on-surface" x-text="cand.name"></span>
+                                            <span class="font-body-md text-body-md text-on-surface-variant uppercase tracking-wider text-xs" x-text="cand.party"></span>
+                                        </div>
+                                    </div>
+                                    <div class="w-16 h-16 flex items-center justify-center border-l border-surface-variant pl-sm ml-sm">
+                                        <button @click="castVote(cand)" class="w-[56px] h-[56px] bg-primary text-on-primary rounded-lg flex items-center justify-center shadow-sm active:bg-primary-container active:scale-95 transition-all duration-150">
+                                            <span class="material-symbols-outlined" data-weight="fill">circle</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                            
+                            <!-- Fallback if no candidates -->
+                            <div x-show="candidates.length === 0" class="p-sm text-center text-on-surface-variant">
+                                Please view candidates in Journey tab first.
+                            </div>
+                        </div>
+
+                        <!-- VVPAT Glass Container -->
+                        <div class="mt-sm bg-surface-container-lowest/40 backdrop-blur-md border-2 border-outline-variant rounded-xl p-md flex flex-col items-center justify-center min-h-[200px] relative overflow-hidden shadow-inner">
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none"></div>
+                            
+                            <div x-show="!vvpatVisible && !evmVoted" class="text-center z-10 flex flex-col items-center gap-xs opacity-60">
+                                <span class="material-symbols-outlined text-4xl text-outline">receipt_long</span>
+                                <span class="font-label-lg text-label-lg text-outline">VVPAT Verification Area</span>
+                                <span class="font-body-md text-body-md text-outline-variant max-w-[250px]">Your selection will appear here briefly for visual confirmation.</span>
+                            </div>
+
+                            <div x-show="vvpatVisible" class="text-center z-10 bg-white p-4 border border-outline rounded-sm shadow-md animate-pulse">
+                                <span class="block text-2xl font-bold mb-2" x-text="vvpatCandidate?.name"></span>
+                                <span class="block text-xl" x-text="vvpatCandidate?.party"></span>
+                                <span class="block mt-4 text-sm text-outline-variant" x-text="'Slip visible for ' + vvpatTimer + 's'"></span>
+                            </div>
+                            
+                            <div x-show="!vvpatVisible && evmVoted" class="text-center z-10 text-tertiary">
+                                <span class="material-symbols-outlined text-4xl" data-weight="fill">check_circle</span>
+                                <span class="block font-bold text-xl mt-2">Mock Vote Successful!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Readiness & Compare Screen -->
+        <div x-show="tab === 'resources' || tab === 'candidates'">
+            <div class="flex flex-col gap-2 mb-8">
+                <h2 class="font-headline-lg text-headline-lg text-on-surface">Election Readiness</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant">Your personalized guide to prepare for polling day.</p>
+            </div>
+
+            <section class="flex flex-col gap-4 mb-8">
+                <h3 class="font-title-lg text-title-lg text-on-surface">Candidate Compare</h3>
+                <div class="bg-surface rounded-xl border border-surface-variant overflow-hidden shadow-sm">
+                    <!-- Map dynamically or just show placeholder if no candidates. Wait, we replace John/Jane with dynamic data. -->
+                    <div class="grid grid-cols-2 border-b border-surface-variant bg-surface-container-low" x-show="candidates.length >= 2">
+                        <div class="p-4 flex flex-col items-center gap-3 border-r border-surface-variant">
+                            <span class="font-title-lg text-title-lg text-on-surface text-center" x-text="candidates[0]?.name"></span>
+                            <span class="text-sm text-on-surface-variant" x-text="candidates[0]?.party"></span>
+                        </div>
+                        <div class="p-4 flex flex-col items-center gap-3">
+                            <span class="font-title-lg text-title-lg text-on-surface text-center" x-text="candidates[1]?.name"></span>
+                            <span class="text-sm text-on-surface-variant" x-text="candidates[1]?.party"></span>
+                        </div>
+                    </div>
+                    <div class="p-4 text-center" x-show="candidates.length < 2">
+                        Please select a valid constituency to compare candidates.
+                    </div>
+                </div>
+            </section>
+
+            <section class="flex flex-col gap-4 mb-8">
+                <h3 class="font-title-lg text-title-lg text-on-surface">What you need to bring</h3>
+                <a :href="directionsUrl || '#'" :target="directionsUrl ? '_blank' : '_self'" @click="if(!directionsUrl) { $event.preventDefault(); alert('Please cast your mock vote to generate your specific booth directions.'); }" class="block bg-primary-container text-on-primary-container rounded-xl p-6 flex flex-col gap-6 relative overflow-hidden hover:opacity-90 transition-opacity cursor-pointer">
+                    <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10" data-weight="fill">how_to_vote</span>
+                    <div class="flex items-start gap-4 z-10">
+                        <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-on-primary">checklist</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-title-lg text-title-lg">Booth Checklist & Routing</span>
+                            <span class="font-body-md text-body-md opacity-90">Click here to open Google Maps to your booth.</span>
+                            <span x-show="boothAddress" class="text-sm mt-1 opacity-80" x-text="boothAddress"></span>
+                            <span x-show="!boothAddress" class="text-sm mt-1 opacity-60 text-yellow-200">Complete EVM Demo to unlock route</span>
+                        </div>
+                    </div>
+                </a>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- BottomNavBar -->
+    <nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-white dark:bg-slate-900 px-2 pb-safe border-t border-slate-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <button @click="tab = 'journey'; showOnboarding = false" :class="tab === 'journey' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
+            <span class="material-symbols-outlined mb-1" :data-weight="tab==='journey'?'fill':''">route</span>
+            <span>Journey</span>
+        </button>
+        <button @click="tab = 'candidates'; showOnboarding = false" :class="tab === 'candidates' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
+            <span class="material-symbols-outlined mb-1">groups</span>
+            <span>Candidates</span>
+        </button>
+        <button @click="tab = 'evm'; showOnboarding = false" :class="tab === 'evm' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
+            <span class="material-symbols-outlined mb-1">touch_app</span>
+            <span>EVM Demo</span>
+        </button>
+        <button @click="tab = 'resources'; showOnboarding = false" :class="tab === 'resources' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
+            <span class="material-symbols-outlined mb-1">menu_book</span>
+            <span>Resources</span>
+        </button>
+    </nav>
+</body>
+</html>
