@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 env:
-  PROJECT_ID: your-gcp-project-id
+  PROJECT_ID: capable-boulder-492305-t1
   SERVICE_NAME: civicpulse-engine
   REGION: us-central1
 
