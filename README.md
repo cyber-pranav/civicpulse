@@ -1,7 +1,7 @@
 # CivicPulse — Election Journey Orchestrator
 
 > **Vertical:** Election Process Education  
-> **Live Deployment:** [CivicPulse on Google Cloud Run](https://civicpulse-engine-xyz-uc.a.run.app) *(Requires GCP Config)*
+> **Live Deployment:** [CivicPulse on Google Cloud Run](https://civicpulse-engine-gkdrd7zpea-uc.a.run.app)
 
 ---
 
