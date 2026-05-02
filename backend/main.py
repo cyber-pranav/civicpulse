@@ -15,7 +15,7 @@ from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -29,6 +29,7 @@ from backend.utils.date_helpers import (
     get_election_countdown,
     get_registration_deadlines,
     CURRENT_DATE,
+    COUNTING_DAY,
 )
 
 # -----------------------------------------------------------------------
@@ -40,7 +41,7 @@ app = FastAPI(
         "A stateful election assistant API that manages a voter's "
         "progression from eligibility check to polling-day readiness."
     ),
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -75,35 +76,49 @@ def _get_session(session_id: str) -> JourneyManager:
 # -----------------------------------------------------------------------
 
 class EligibilityRequest(BaseModel):
+    """Request model for eligibility check endpoint."""
+
     session_id: str
     dob: str = Field(..., description="Date of birth ISO format YYYY-MM-DD")
     location: str = Field(..., description="Indian state or UT name")
 
 
 class RegistrationRequest(BaseModel):
+    """Request model for voter registration verification."""
+
     session_id: str
     is_registered: bool
 
 
 class CandidateRequest(BaseModel):
+    """Request model for candidate lookup."""
+
     session_id: str
     constituency: str
 
 
 class SimulationRequest(BaseModel):
+    """Request model for polling simulation trigger."""
+
     session_id: str
 
 
 class SimpleRequest(BaseModel):
+    """Request model for simple mode toggle."""
+
     session_id: str
 
 
 class DirectionsRequest(BaseModel):
+    """Request model for booth directions lookup."""
+
     origin: str
     destination: str
 
 
 class TranslateRequest(BaseModel):
+    """Request model for jargon translation."""
+
     text: str
 
 
@@ -118,13 +133,14 @@ async def health():
         "service": "Election Journey Orchestrator",
         "date": str(CURRENT_DATE),
         "countdown": get_election_countdown(),
+        "counting_day": str(COUNTING_DAY),
         "status": "operational",
     }
 
 
 @app.get("/api/deadlines", tags=["Info"])
 async def deadlines():
-    """Return key election deadlines."""
+    """Return key election deadlines including counting day."""
     return get_registration_deadlines()
 
 
@@ -165,12 +181,12 @@ async def journey_candidates(req: CandidateRequest):
     """Stage 3 — Get candidate cards for a constituency."""
     mgr = _get_session(req.session_id)
     try:
-        # Fetch from Civic API
+        # Fetch from Civic API with graceful fallback
         try:
             voter_info = await civic_api.get_voter_info(req.constituency)
-        except civic_api.CivicAPIError:
+        except (civic_api.CivicAPIError, Exception):
             voter_info = civic_api.get_mock_voter_info(req.constituency)
-            
+
         # Parse candidates from contests
         candidates_data = []
         for contest in voter_info.get("contests", []):
@@ -178,10 +194,17 @@ async def journey_candidates(req: CandidateRequest):
                 candidates_data.append({
                     "name": cand.get("name", "Unknown"),
                     "party": cand.get("party", "Unknown"),
-                    "promises": ["Improve local infrastructure", "Better healthcare facilities", "Increase employment opportunities"], # Dummy promises since API doesn't provide them
+                    "promises": [
+                        "Improve local infrastructure",
+                        "Better healthcare facilities",
+                        "Increase employment opportunities",
+                    ],
                 })
-        
-        return mgr.get_candidate_cards(req.constituency, candidates_data if candidates_data else None)
+
+        return mgr.get_candidate_cards(
+            req.constituency,
+            candidates_data if candidates_data else None,
+        )
     except Exception as e:
         raise HTTPException(400, str(e))
 
@@ -226,10 +249,10 @@ async def journey_status(session_id: str):
 
 @app.post("/api/services/directions", tags=["Services"])
 async def get_directions(req: DirectionsRequest):
-    """Get time-to-booth and directions URL."""
+    """Get time-to-booth and directions URL with graceful fallback."""
     try:
         data = await maps_api.get_time_to_booth(req.origin, req.destination)
-    except maps_api.MapsAPIError:
+    except (maps_api.MapsAPIError, Exception):
         data = maps_api.get_mock_time_to_booth(req.origin, req.destination)
     data["directions_url"] = maps_api.generate_directions_url(
         req.origin, req.destination
@@ -239,17 +262,43 @@ async def get_directions(req: DirectionsRequest):
 
 @app.get("/api/services/polling-info/{state}", tags=["Services"])
 async def get_polling_info(state: str):
-    """Get polling station info (mock or live)."""
+    """Get polling station info with graceful fallback to general guidelines."""
     try:
-        return await civic_api.get_voter_info(state)
-    except civic_api.CivicAPIError:
-        return civic_api.get_mock_voter_info(state)
+        result = await civic_api.get_voter_info(state)
+        return result
+    except (civic_api.CivicAPIError, Exception):
+        # Graceful fallback: return general guidelines instead of failing
+        mock_data = civic_api.get_mock_voter_info(state)
+        mock_data["_fallback"] = True
+        mock_data["_fallback_message"] = (
+            "Live polling data is currently unavailable. "
+            "Showing general guidelines for your area."
+        )
+        return mock_data
 
 
 @app.get("/api/services/calendar-links", tags=["Services"])
 async def get_calendar_links():
-    """Get Google Calendar deep-links for all key dates."""
+    """Get Google Calendar deep-links for all key dates including counting day."""
     return calendar_api.get_all_reminder_links()
+
+
+@app.get("/api/services/calendar-ics", tags=["Services"])
+async def get_calendar_ics():
+    """
+    Download an .ics file for the Counting Day (May 4, 2026).
+
+    Returns a downloadable iCalendar file compatible with
+    Google Calendar, Apple Calendar, Outlook, etc.
+    """
+    ics_content = calendar_api.generate_counting_day_ics()
+    return Response(
+        content=ics_content,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": "attachment; filename=counting_day_2026.ics",
+        },
+    )
 
 
 # -----------------------------------------------------------------------

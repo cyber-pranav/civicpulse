@@ -17,11 +17,15 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 # Application Constants
 # ---------------------------------------------------------------------------
-# Hardcoded per spec §2: "Current Date: April 28, 2026"
-CURRENT_DATE: date = date(2026, 4, 28)
+# Context Awareness: Today is May 2, 2026.
+# West Bengal Phase II elections were April 29; counting is May 4.
+CURRENT_DATE: date = date(2026, 5, 2)
 
 # Phase II (West Bengal) election date.
 PHASE_II_DATE: date = date(2026, 4, 29)
+
+# Counting Day — results announced.
+COUNTING_DAY: date = date(2026, 5, 4)
 
 # Minimum voting age in India.
 MINIMUM_VOTING_AGE: int = 18
@@ -105,6 +109,32 @@ def hours_until_election(
     return delta.total_seconds() / 3600
 
 
+def hours_until_counting(
+    now: datetime | None = None,
+    counting: date = COUNTING_DAY,
+) -> float:
+    """
+    Compute hours remaining until counting day (midnight IST).
+
+    Parameters
+    ----------
+    now : datetime, optional
+        Current timestamp.
+    counting : date
+        Target counting date.
+
+    Returns
+    -------
+    float
+        Hours remaining (can be negative if counting day has passed).
+    """
+    if now is None:
+        now = datetime.now()
+    counting_start = datetime.combine(counting, datetime.min.time())
+    delta: timedelta = counting_start - now
+    return delta.total_seconds() / 3600
+
+
 def format_date_indian(d: date) -> str:
     """
     Format a date in Indian English style: "29 April 2026".
@@ -126,19 +156,29 @@ def get_election_countdown(election: date = PHASE_II_DATE) -> str:
     """
     Generate a human-readable countdown string for display.
 
+    Accounts for the fact that elections have passed and counting is upcoming.
+
     Returns
     -------
     str
-        e.g. "Voting is TOMORROW!" or "3 days until voting day."
+        e.g. "Voting has concluded. Counting day is in 2 days!"
     """
-    delta = (election - CURRENT_DATE).days
-    if delta < 0:
-        return "Voting day has passed."
-    if delta == 0:
+    voting_delta = (election - CURRENT_DATE).days
+    counting_delta = (COUNTING_DAY - CURRENT_DATE).days
+
+    if voting_delta < 0 and counting_delta > 0:
+        if counting_delta == 1:
+            return "🗳️ Voting has concluded. Counting day is TOMORROW!"
+        return f"🗳️ Voting has concluded. Counting day is in {counting_delta} days!"
+    if voting_delta < 0 and counting_delta == 0:
+        return "📊 TODAY is counting day! Results are being announced."
+    if voting_delta < 0:
+        return "Voting day and counting day have both passed."
+    if voting_delta == 0:
         return "🗳️ TODAY is voting day!"
-    if delta == 1:
+    if voting_delta == 1:
         return "🗳️ Voting is TOMORROW!"
-    return f"🗳️ {delta} days until voting day."
+    return f"🗳️ {voting_delta} days until voting day."
 
 
 def get_registration_deadlines() -> dict[str, str]:
@@ -157,4 +197,5 @@ def get_registration_deadlines() -> dict[str, str]:
         "Last date for corrections in voter list": "20 March 2026",
         "Final voter list publication": "01 April 2026",
         "Phase II polling day (West Bengal)": format_date_indian(PHASE_II_DATE),
+        "Counting Day": format_date_indian(COUNTING_DAY),
     }

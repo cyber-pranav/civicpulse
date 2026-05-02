@@ -3,7 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CivicPulse - Election Readiness</title>
+    <meta name="description" content="CivicPulse — Your personalized Election Journey Orchestrator. Check eligibility, research candidates, practice mock voting, and get ready for Election Day." />
+    <meta name="theme-color" content="#003461" />
+    <meta property="og:title" content="CivicPulse — Election Readiness" />
+    <meta property="og:description" content="Interactive election guide: eligibility check, candidate research, EVM simulator, and polling-day preparation." />
+    <meta property="og:type" content="website" />
+    <title>CivicPulse — Election Readiness | Your Civic Journey Guide</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -125,8 +130,29 @@
         .jargon-term {
             text-decoration: underline;
             text-decoration-style: dashed;
+            text-decoration-color: rgba(39, 96, 157, 0.5);
             cursor: help;
+            position: relative;
+            transition: background-color 0.2s ease;
         }
+        .jargon-term:hover, .jargon-term:focus {
+            background-color: rgba(163, 201, 255, 0.3);
+            border-radius: 2px;
+        }
+        @keyframes vvpat-slide {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            85% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        .vvpat-slip-animate {
+            animation: vvpat-slide 7s ease-in-out forwards;
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .lazy-fade-in { animation: fade-in-up 0.4s ease-out both; }
     </style>
     <script src="/app.js"></script>
 </head>
@@ -141,8 +167,8 @@
         
         <nav class="hidden md:flex items-center gap-6">
             <a href="#" @click.prevent="tab = 'journey'" :class="tab === 'journey' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Journey</a>
-            <a href="#" @click.prevent="tab = 'candidates'" :class="tab === 'candidates' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Candidates</a>
-            <a href="#" @click.prevent="tab = 'evm'" :class="tab === 'evm' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">EVM Demo</a>
+            <a href="#" @click.prevent="if(isEligible) tab = 'candidates'" :class="[tab === 'candidates' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600', !isEligible ? 'opacity-50 cursor-not-allowed' : '']" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Candidates</a>
+            <a href="#" @click.prevent="if(isEligible) tab = 'evm'" :class="[tab === 'evm' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600', !isEligible ? 'opacity-50 cursor-not-allowed' : '']" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">EVM Demo</a>
             <a href="#" @click.prevent="tab = 'resources'" :class="tab === 'resources' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Readiness</a>
         </nav>
 
@@ -175,7 +201,7 @@
             <form class="space-y-8" @submit.prevent="submitOnboarding()">
                 <div class="flex flex-col space-y-2">
                     <label class="font-title-lg text-title-lg text-on-surface" for="age">What is your age?</label>
-                    <input x-model="age" class="w-full h-[60px] px-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="age" min="18" name="age" placeholder="e.g., 25" type="number" required />
+                    <input x-model="age" class="w-full h-[60px] px-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="age" name="age" placeholder="e.g., 25" type="number" required />
                 </div>
                 <div class="flex flex-col space-y-2">
                     <label class="font-title-lg text-title-lg text-on-surface" for="location">Where are you voting?</label>
@@ -222,8 +248,24 @@
         <div x-show="tab === 'journey' || state === 'ELIGIBILITY_CHECK' || state === 'UNINITIALIZED'">
             <header class="mb-10">
                 <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Your Civic Journey</h1>
-                <p class="font-body-lg text-body-lg text-on-surface-variant">Follow the trail to ensure you are fully prepared for Election Day.</p>
+                <p x-show="state !== 'CIVIC_EDUCATION'" class="font-body-lg text-body-lg text-on-surface-variant">Follow the trail to ensure you are fully prepared for Election Day.</p>
+                <p x-show="state === 'CIVIC_EDUCATION'" class="font-body-lg text-body-lg text-on-surface-variant">You are under 18. Let's learn about the democratic process so you're ready when your time comes!</p>
             </header>
+
+            <!-- Civic Education Node (Underage) -->
+            <div x-show="state === 'CIVIC_EDUCATION'" class="bg-primary-container text-on-primary-container p-6 rounded-xl border border-primary-container/20 mb-8 shadow-sm">
+                <div class="flex items-start gap-4">
+                    <span class="material-symbols-outlined text-4xl mt-1">school</span>
+                    <div>
+                        <h3 class="font-title-lg text-title-lg mb-2">Civic Education</h3>
+                        <ul class="list-disc ml-4 space-y-2 font-body-md text-body-md">
+                            <template x-for="(tip, index) in civicTips" :key="index">
+                                <li x-text="tip"></li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
             <div x-show="urgentWB" class="bg-error-container text-on-error-container p-5 rounded-xl flex items-start gap-4 border border-error/20 mb-8 shadow-sm">
                 <div class="relative flex h-3 w-3 mt-1.5 flex-shrink-0">
@@ -231,8 +273,25 @@
                     <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
                 </div>
                 <div>
-                    <h3 class="font-title-lg text-title-lg mb-1">Verify Registration Deadline Approaching</h3>
-                    <p class="font-body-md text-body-md">You must verify your electoral roll status within the next 48 hours to guarantee your ability to vote.</p>
+                    <h3 class="font-title-lg text-title-lg mb-1">Phase II Voting Has Concluded</h3>
+                    <p class="font-body-md text-body-md">West Bengal Phase II elections took place on April 29. Counting day is <strong>May 4, 2026</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Counting Day Reminder Banner -->
+            <div class="bg-tertiary-fixed text-on-tertiary-fixed p-5 rounded-xl flex items-start gap-4 border border-tertiary-container/20 mb-8 shadow-sm">
+                <span class="material-symbols-outlined text-tertiary-container text-3xl mt-0.5" data-weight="fill">event</span>
+                <div class="flex-grow">
+                    <h3 class="font-title-lg text-title-lg text-on-tertiary-fixed mb-1">📊 Counting Day — May 4, 2026</h3>
+                    <p class="font-body-md text-body-md text-on-tertiary-fixed/80 mb-3" x-text="countdown"></p>
+                    <div class="flex flex-wrap gap-3">
+                        <button @click="downloadCountingDayICS()" id="btn-download-ics" class="bg-tertiary-container text-on-tertiary-container font-label-lg text-label-lg px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98] shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">download</span> Download .ics Reminder
+                        </button>
+                        <a :href="calendarLinks.find(l => l.title.includes('Counting'))?.calendar_url || '#'" target="_blank" rel="noopener" class="bg-white/20 text-on-tertiary-fixed font-label-lg text-label-lg px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/30 transition-colors border border-white/20">
+                            <span class="material-symbols-outlined text-[18px]">open_in_new</span> Add to Google Calendar
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -291,7 +350,7 @@
                             </div>
 
                             <!-- Countdown for event -->
-                            <div x-show="step.label === 'Election Day Ready'">
+                            <div x-show="step.label === 'Election Day Ready' && deadlines.countdown">
                                 <div class="inline-flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg mt-1 border border-surface-variant">
                                     <span class="material-symbols-outlined text-outline text-[18px]">schedule</span>
                                     <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider" x-text="'Countdown: ' + deadlines.countdown"></span>
@@ -381,7 +440,8 @@
                                 <span class="font-body-md text-body-md text-outline-variant max-w-[250px]">Your selection will appear here briefly for visual confirmation.</span>
                             </div>
 
-                            <div x-show="vvpatVisible" class="text-center z-10 bg-white p-4 border border-outline rounded-sm shadow-md animate-pulse">
+                            <div x-show="vvpatVisible" x-transition class="text-center z-10 bg-white p-4 border border-outline rounded-sm shadow-md vvpat-slip-animate">
+                                <span class="block text-xs text-outline-variant uppercase tracking-widest mb-2">— VVPAT Verification Slip —</span>
                                 <span class="block text-2xl font-bold mb-2" x-text="vvpatCandidate?.name"></span>
                                 <span class="block text-xl" x-text="vvpatCandidate?.party"></span>
                                 <span class="block mt-4 text-sm text-outline-variant" x-text="'Slip visible for ' + vvpatTimer + 's'"></span>
@@ -404,10 +464,9 @@
                 <p class="font-body-lg text-body-lg text-on-surface-variant">Your personalized guide to prepare for polling day.</p>
             </div>
 
-            <section class="flex flex-col gap-4 mb-8">
+            <section class="flex flex-col gap-4 mb-8" x-show="candidatesLoaded" x-transition class="lazy-fade-in">
                 <h3 class="font-title-lg text-title-lg text-on-surface">Candidate Compare</h3>
-                <div class="bg-surface rounded-xl border border-surface-variant overflow-hidden shadow-sm">
-                    <!-- Map dynamically or just show placeholder if no candidates. Wait, we replace John/Jane with dynamic data. -->
+                <div id="candidate-compare" class="bg-surface rounded-xl border border-surface-variant overflow-hidden shadow-sm">
                     <div class="grid grid-cols-2 border-b border-surface-variant bg-surface-container-low" x-show="candidates.length >= 2">
                         <div class="p-4 flex flex-col items-center gap-3 border-r border-surface-variant">
                             <span class="font-title-lg text-title-lg text-on-surface text-center" x-text="candidates[0]?.name"></span>
@@ -426,7 +485,7 @@
 
             <section class="flex flex-col gap-4 mb-8">
                 <h3 class="font-title-lg text-title-lg text-on-surface">What you need to bring</h3>
-                <a :href="directionsUrl || '#'" :target="directionsUrl ? '_blank' : '_self'" @click="if(!directionsUrl) { $event.preventDefault(); alert('Please cast your mock vote to generate your specific booth directions.'); }" class="block bg-primary-container text-on-primary-container rounded-xl p-6 flex flex-col gap-6 relative overflow-hidden hover:opacity-90 transition-opacity cursor-pointer">
+                <a id="booth-routing-link" :href="directionsUrl || '#'" :target="directionsUrl ? '_blank' : '_self'" @click="if(!directionsUrl) { $event.preventDefault(); alert('Please cast your mock vote to generate your specific booth directions.'); }" class="block bg-primary-container text-on-primary-container rounded-xl p-6 flex flex-col gap-6 relative overflow-hidden hover:opacity-90 transition-opacity cursor-pointer">
                     <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10" data-weight="fill">how_to_vote</span>
                     <div class="flex items-start gap-4 z-10">
                         <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -441,6 +500,34 @@
                     </div>
                 </a>
             </section>
+
+            <!-- Calendar Reminders Section -->
+            <section class="flex flex-col gap-4 mb-8" x-show="calendarLinks.length > 0">
+                <h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">calendar_month</span> Key Dates & Reminders
+                </h3>
+                <div class="space-y-3">
+                    <template x-for="link in calendarLinks" :key="link.title">
+                        <div class="bg-surface rounded-xl border border-surface-variant p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">event</span>
+                                <div>
+                                    <p class="font-label-lg text-label-lg text-on-surface" x-text="link.title"></p>
+                                    <p class="font-body-md text-body-md text-on-surface-variant" x-text="link.date"></p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <a :href="link.calendar_url" target="_blank" rel="noopener" class="p-2 text-primary hover:bg-primary-fixed rounded-lg transition-colors" title="Add to Google Calendar">
+                                    <span class="material-symbols-outlined text-[20px]">open_in_new</span>
+                                </a>
+                                <button x-show="link.has_ics" @click="downloadCountingDayICS()" class="p-2 text-primary hover:bg-primary-fixed rounded-lg transition-colors" title="Download .ics file">
+                                    <span class="material-symbols-outlined text-[20px]">download</span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
         </div>
 
     </div>
@@ -451,11 +538,11 @@
             <span class="material-symbols-outlined mb-1" :data-weight="tab==='journey'?'fill':''">route</span>
             <span>Journey</span>
         </button>
-        <button @click="tab = 'candidates'; showOnboarding = false" :class="tab === 'candidates' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
+        <button @click="if(isEligible) { tab = 'candidates'; showOnboarding = false; }" :disabled="!isEligible" :class="[tab === 'candidates' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500', !isEligible ? 'opacity-50' : '']" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold disabled:cursor-not-allowed">
             <span class="material-symbols-outlined mb-1">groups</span>
             <span>Candidates</span>
         </button>
-        <button @click="tab = 'evm'; showOnboarding = false" :class="tab === 'evm' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
+        <button @click="if(isEligible) { tab = 'evm'; showOnboarding = false; }" :disabled="!isEligible" :class="[tab === 'evm' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500', !isEligible ? 'opacity-50' : '']" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold disabled:cursor-not-allowed">
             <span class="material-symbols-outlined mb-1">touch_app</span>
             <span>EVM Demo</span>
         </button>
