@@ -1,8 +1,7 @@
 # CivicPulse — Election Journey Orchestrator
 
-**Vertical:** Election Process Education
-
-CivicPulse is a personalized, interactive Election Journey Orchestrator designed to prepare voters for Election Day. Our mission is to demystify the democratic process by guiding users step-by-step through a secure, comprehensive, and highly accessible readiness trail.
+> **Vertical:** Election Process Education  
+> **Live Deployment:** [CivicPulse on Google Cloud Run](https://civicpulse-engine-xyz-uc.a.run.app) *(Requires GCP Config)*
 
 ---
 
