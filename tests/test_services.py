@@ -155,7 +155,7 @@ class TestFirebaseService:
         
         # Test missing db handles gracefully or throws specific error? Actually test what's there
         try:
-            res = await verify_token("mock-token")
+            await verify_token("mock-token")
         except Exception:
             pass
         assert True
@@ -186,7 +186,7 @@ class TestCivicService:
         # Test cache miss (or clear cache if needed, assume missed)
         from backend.utils.cache import cache_delete
         from backend.services.civic_service import get_candidates
-        cache_delete(f"civic_candidates_constituency")
+        cache_delete("civic_candidates_constituency")
         
         res = await get_candidates("constituency")
         assert res["data_source"] == "live"
