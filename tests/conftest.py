@@ -14,7 +14,6 @@ from httpx import ASGITransport, AsyncClient
 
 from backend.main import app, _sessions
 from backend.logic.journey_manager import JourneyManager
-from backend.logic.state_machine import JourneyState
 
 
 @pytest.fixture

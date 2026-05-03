@@ -5,7 +5,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from backend.services.nlp_service import analyze_sentiment
-from backend.utils.logger import Logger
 
 router = APIRouter(prefix="/api/nlp", tags=["NLP"])
 

@@ -4,27 +4,26 @@
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from backend.services.translate_service import translate_texts, SUPPORTED_LANGUAGES
-from backend.utils.logger import Logger
+from backend.services.translate_service import translate_text, SUPPORTED_LANGUAGES
 
 router = APIRouter(prefix="/api/translate", tags=["Translation"])
 
 class TranslateRequest(BaseModel):
-    texts: list[str]
+    text: str
     target_language: str
 
 @router.post("/")
 async def translate_route(req: TranslateRequest):
     """
-    @description Translates UI text strings to target language.
-    @returns dict - list of translated strings
+    @description Translates a text string to target language.
+    @returns dict - translated string
     """
     if req.target_language not in SUPPORTED_LANGUAGES:
         raise HTTPException(
             status_code=400,
             detail=f"Unsupported language. Supported: {list(SUPPORTED_LANGUAGES.keys())}"
         )
-    translated = await translate_texts(req.texts, req.target_language)
+    translated = await translate_text(req.text, req.target_language)
     return {"success": True, "translated": translated, "language": req.target_language}
 
 @router.get("/languages")

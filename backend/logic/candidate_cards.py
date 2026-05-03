@@ -18,7 +18,7 @@ be reused by any API endpoint or service.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from backend.utils.jargon_killer import translate
 

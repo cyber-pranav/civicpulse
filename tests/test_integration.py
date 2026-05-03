@@ -8,8 +8,6 @@ Validates end-to-end state transitions via the FastAPI HTTP API:
 """
 from __future__ import annotations
 import pytest
-from httpx import ASGITransport, AsyncClient
-from backend.main import app, _sessions
 
 @pytest.mark.asyncio
 async def test_start_journey(async_client):
@@ -88,7 +86,7 @@ async def test_calendar_links(async_client):
     assert r.status_code == 200
     links = r.json()
     assert len(links) >= 5
-    titles = [l["title"] for l in links]
+    titles = [link["title"] for link in links]
     assert any("Counting" in t for t in titles)
 
 @pytest.mark.asyncio
@@ -123,3 +121,42 @@ async def test_polling_info_fallback(async_client):
     assert r.status_code == 200
     data = r.json()
     assert "contests" in data or "_fallback" in data
+
+@pytest.mark.asyncio
+async def test_civic_api_live(async_client, monkeypatch):
+    """POST /api/journey/candidates with mocked live civic api data."""
+    async def mock_get_representatives(address):
+        return {"officials": [{"name": "Mock Official", "party": "Mock Party"}]}
+    
+    from backend.services import civic_api
+    monkeypatch.setattr(civic_api, "get_representatives", mock_get_representatives)
+    
+    r = await async_client.post("/api/journey/start")
+    sid = r.json()["session_id"]
+    await async_client.post("/api/journey/eligibility", json={
+        "session_id": sid, "dob": "2000-01-15", "location": "Maharashtra"
+    })
+    await async_client.post("/api/journey/registration", json={
+        "session_id": sid, "is_registered": True
+    })
+    r_cand = await async_client.post("/api/journey/candidates", json={
+        "session_id": sid, "constituency": "Maharashtra"
+    })
+    data = r_cand.json()
+    assert "data_source" in data
+    assert data["data_source"] == "live"
+    assert len(data["candidate_cards"]) > 0
+
+@pytest.mark.asyncio
+async def test_google_translate_endpoint(async_client, monkeypatch):
+    """POST /api/translate returns a translated string."""
+    async def mock_translate_text(text, target):
+        return f"Translated {text}"
+        
+    from backend.routers import translate
+    monkeypatch.setattr(translate, "translate_text", mock_translate_text)
+    
+    r = await async_client.post("/api/translate/", json={"text": "Hello", "target_language": "hi"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["translated"] == "Translated Hello"

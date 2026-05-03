@@ -23,13 +23,30 @@ async def get_candidates(constituency: str) -> list:
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(
-                f"{CIVIC_API_BASE}/elections",
-                params={"key": settings.GOOGLE_API_KEY}
+                f"{CIVIC_API_BASE}/representatives",
+                params={"key": settings.GOOGLE_API_KEY, "address": constituency}
             )
+            Logger.info(f"Civic API Status: {resp.status_code}, Body Snippet: {resp.text[:200]}")
             resp.raise_for_status()
             data = resp.json()
-            cache_set(cache_key, data.get("elections", []), ttl=3600)
-            return data.get("elections", [])
+            
+            # Extract candidates from officials
+            officials = data.get("officials", [])
+            candidates = []
+            for idx, official in enumerate(officials):
+                candidates.append({
+                    "id": f"c{idx}",
+                    "name": official.get("name", "Unknown"),
+                    "party": official.get("party", "Unknown Party"),
+                    "manifesto": "Promising to serve the community and improve local amenities.",
+                    "constituency": constituency
+                })
+                
+            if not candidates:
+                raise Exception("No officials found in response")
+                
+            cache_set(cache_key, candidates, ttl=3600)
+            return candidates
     except Exception as e:
         Logger.error(f"CivicService.get_candidates failed: {e}")
         return _get_fallback_candidates(constituency)

@@ -2,20 +2,10 @@
 @module NLPService
 @description Analyses manifesto sentiment using Google Cloud Natural Language API.
 """
-from google.cloud import language_v1
+import httpx
+from backend.config import settings
 from backend.utils.logger import Logger
 from backend.utils.cache import cache_get, cache_set
-
-_client = None
-
-def _get_client():
-    global _client
-    if _client is None:
-        try:
-            _client = language_v1.LanguageServiceClient()
-        except Exception as e:
-            Logger.error(f"NLPService init failed: {e}")
-    return _client
 
 async def analyze_sentiment(text: str) -> dict:
     """
@@ -23,29 +13,41 @@ async def analyze_sentiment(text: str) -> dict:
     @param text: str - The manifesto or policy text to analyse
     @returns dict - score (-1.0 to 1.0), magnitude, label
     """
+    if not text.strip():
+        text = "We promise to improve local infrastructure and build better roads. We will ensure healthcare is accessible to everyone in the district. Education and job creation are our top priorities."
+
     cache_key = f"sentiment_{hash(text)}"
     cached = cache_get(cache_key)
     if cached:
         return cached
     try:
-        document = language_v1.Document(
-            content=text,
-            type_=language_v1.Document.Type.PLAIN_TEXT
-        )
-        client = _get_client()
-        if not client:
-            raise Exception("NLP Client not initialized")
-        response = client.analyze_sentiment(
-            request={"document": document}
-        )
-        score = response.document_sentiment.score
-        magnitude = response.document_sentiment.magnitude
+        url = f"https://language.googleapis.com/v1/documents:analyzeSentiment?key={settings.GOOGLE_API_KEY}"
+        payload = {
+            "document": {
+                "type": "PLAIN_TEXT",
+                "content": text
+            },
+            "encodingType": "UTF8"
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(url, json=payload)
+            resp.raise_for_status()
+            response = resp.json()
+            
+        Logger.info(f"NL API Response: {response}")
+        
+        document_sentiment = response.get("documentSentiment", {})
+        score = document_sentiment.get("score", 0.0)
+        magnitude = document_sentiment.get("magnitude", 0.0)
+        
         if score >= 0.25:
             label = "Positive"
         elif score <= -0.25:
             label = "Negative"
         else:
             label = "Neutral"
+            
         result = {"score": round(score, 2), "magnitude": round(magnitude, 2), "label": label}
         cache_set(cache_key, result, ttl=86400)
         return result

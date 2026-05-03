@@ -11,7 +11,6 @@ Validates:
 
 from __future__ import annotations
 
-import pytest
 
 from backend.utils.jargon_killer import translate, get_glossary, JARGON_MAP
 

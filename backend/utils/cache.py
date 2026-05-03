@@ -3,7 +3,6 @@
 @description In-memory TTL cache for API response caching.
              Prevents redundant calls to Google APIs.
 """
-import time
 from cachetools import TTLCache
 
 _CACHE_MAX_SIZE = 512

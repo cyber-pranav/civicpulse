@@ -4,7 +4,6 @@ test_sanitizer.py — Unit Tests for Input Sanitization & Security.
 Validates PII stripping, XSS prevention, and prompt injection detection.
 """
 from __future__ import annotations
-import pytest
 from backend.utils.sanitizer import (
     sanitize, sanitize_html, strip_pii,
     detect_prompt_injection, enforce_length,

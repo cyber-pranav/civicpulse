@@ -18,9 +18,8 @@ by the FastAPI layer.
 
 from __future__ import annotations
 
-import asyncio
 import uuid
-from datetime import date, datetime
+from datetime import date
 from typing import Any, Optional
 
 from backend.logic.state_machine import (
@@ -31,14 +30,11 @@ from backend.logic.state_machine import (
     validate_transition,
 )
 from backend.utils.date_helpers import (
-    CURRENT_DATE,
     PHASE_II_DATE,
     calculate_age,
     format_date_indian,
     get_election_countdown,
     get_registration_deadlines,
-    hours_until_election,
-    is_eligible_to_vote,
 )
 from backend.utils.jargon_killer import translate
 from backend.utils.sanitizer import sanitize

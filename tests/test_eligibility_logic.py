@@ -15,12 +15,10 @@ from datetime import date
 
 import pytest
 
-from backend.logic.journey_manager import JourneyManager
 from backend.logic.state_machine import JourneyState, JourneyPath, determine_path
 from backend.utils.date_helpers import (
     calculate_age,
     is_eligible_to_vote,
-    QUALIFYING_DATE,
     MINIMUM_VOTING_AGE,
 )
 
@@ -101,7 +99,7 @@ class TestJourneyEligibility:
 
     def test_west_bengal_triggers_urgent(self, started_manager):
         """West Bengal location should trigger URGENT_POLLING path."""
-        result = started_manager.check_eligibility("2000-01-15", "West Bengal")
+        started_manager.check_eligibility("2000-01-15", "West Bengal")
         assert started_manager.path == JourneyPath.URGENT_POLLING
 
     def test_suspicious_input_blocked(self, started_manager):

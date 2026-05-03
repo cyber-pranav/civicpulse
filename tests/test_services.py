@@ -6,7 +6,7 @@ Validates mock fallbacks, URL generation, and ICS file creation.
 from __future__ import annotations
 from datetime import date
 import pytest
-from backend.services.civic_api import get_mock_voter_info, CivicAPIError
+from backend.services.civic_api import get_mock_voter_info
 from backend.services.maps_api import generate_directions_url, get_mock_time_to_booth
 from backend.services.calendar_api import (
     generate_calendar_deep_link, generate_ics_content,
@@ -70,7 +70,7 @@ class TestCalendarAPI:
     def test_all_reminder_links(self):
         links = get_all_reminder_links()
         assert len(links) >= 5
-        counting = [l for l in links if "Counting" in l["title"]]
+        counting = [link for link in links if "Counting" in link["title"]]
         assert len(counting) == 1
         assert counting[0]["has_ics"] is True
 
@@ -83,3 +83,21 @@ class TestCalendarAPI:
         event = create_counting_day_event()
         assert "Counting Day" in event["summary"]
         assert "results.eci.gov.in" in event["description"]
+
+class TestTranslateAPI:
+    @pytest.mark.asyncio
+    async def test_translate_text(self):
+        from backend.services.translate_service import translate_text
+        text = await translate_text("Hello", "hi")
+        assert isinstance(text, str)
+        assert len(text) > 0
+        
+class TestNLPAPI:
+    @pytest.mark.asyncio
+    async def test_analyze_sentiment(self):
+        from backend.services.nlp_service import analyze_sentiment
+        res = await analyze_sentiment("We will build better roads and improve the economy.")
+        assert "score" in res
+        assert "magnitude" in res
+        assert "label" in res
+        assert isinstance(res["score"], float)

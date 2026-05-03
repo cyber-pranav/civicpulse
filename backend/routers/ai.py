@@ -3,12 +3,11 @@
 @description FastAPI routes for Gemini AI features:
              candidate analysis, civic Q&A, and intelligent search.
 """
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from backend.services.gemini_service import (
     analyze_candidate, answer_civic_question, search_candidates
 )
-from backend.utils.logger import Logger
 
 router = APIRouter(prefix="/api/ai", tags=["AI"])
 

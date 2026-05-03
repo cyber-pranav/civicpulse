@@ -66,6 +66,17 @@ function civicPulse() {
      */
     async init() {
       var self = this;
+      
+      // Fetch dynamic configuration
+      try {
+        var cfg = await apiFetch(API + '/api/config');
+        if (cfg && cfg.maps_key) {
+          CONFIG.MAPS_API_KEY = cfg.maps_key;
+        }
+      } catch (e) {
+        Logger.error('Failed to load config:', e);
+      }
+
       // Init analytics
       AnalyticsModule.init();
       // Init translate
@@ -466,9 +477,8 @@ function civicPulse() {
             body: JSON.stringify({ origin: this.location, destination: this.boothAddress })
           });
           this.directionsUrl = d2.directions_url || '';
-          this.mapsEmbedUrl = 'https://www.google.com/maps/embed/v1/directions?key=' + CONFIG.MAPS_API_KEY +
-            '&origin=' + encodeURIComponent(this.location) + '&destination=' + encodeURIComponent(this.boothAddress) +
-            '&mode=' + this.mapsMode;
+          this.mapsEmbedUrl = 'https://www.google.com/maps/embed/v1/place?key=' + CONFIG.MAPS_API_KEY +
+            '&q=' + encodeURIComponent(this.boothAddress) + '&zoom=16';
           this.showMapsEmbed = true;
           AnalyticsModule.track('booth_route_opened');
         }
@@ -479,9 +489,8 @@ function civicPulse() {
     setMapsMode(mode) {
       this.mapsMode = mode;
       if (this.boothAddress) {
-        this.mapsEmbedUrl = 'https://www.google.com/maps/embed/v1/directions?key=' + CONFIG.MAPS_API_KEY +
-          '&origin=' + encodeURIComponent(this.location) + '&destination=' + encodeURIComponent(this.boothAddress) +
-          '&mode=' + mode;
+        this.mapsEmbedUrl = 'https://www.google.com/maps/embed/v1/place?key=' + CONFIG.MAPS_API_KEY +
+          '&q=' + encodeURIComponent(this.boothAddress) + '&zoom=16';
       }
     },
 

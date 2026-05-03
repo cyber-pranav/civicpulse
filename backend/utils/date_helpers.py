@@ -12,7 +12,6 @@ All functions are pure (no side-effects) and use the ``datetime`` stdlib.
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from typing import Optional
 
 # ---------------------------------------------------------------------------
 # Application Constants

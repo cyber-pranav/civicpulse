@@ -6,7 +6,7 @@ Validates transition rules, terminal states, and emergency mode.
 from __future__ import annotations
 import pytest
 from backend.logic.state_machine import (
-    JourneyState, JourneyPath, TRANSITION_TABLE,
+    JourneyState, TRANSITION_TABLE,
     EMERGENCY_ELIGIBLE_STATES, TransitionError, validate_transition,
 )
 

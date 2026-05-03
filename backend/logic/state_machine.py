@@ -22,8 +22,7 @@ EMERGENCY_SIMPLE   → Overlay state — reduces responses to ≤ 15 words.
 
 from __future__ import annotations
 
-from enum import Enum, auto
-from typing import Optional
+from enum import Enum
 
 
 class JourneyState(str, Enum):

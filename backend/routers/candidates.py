@@ -4,7 +4,6 @@
 """
 from fastapi import APIRouter, HTTPException
 from backend.services.civic_service import get_candidates
-from backend.utils.logger import Logger
 
 router = APIRouter(prefix="/api/candidates", tags=["Candidates"])
 

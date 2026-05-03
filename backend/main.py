@@ -7,28 +7,22 @@ from __future__ import annotations
 
 import os
 import time
-from datetime import date
-from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from backend.routers import ai, nlp, translate, user, candidates
+from backend.routers import ai, nlp, translate, user, candidates, config
 from backend.config import settings
 from backend.utils.logger import Logger
 
 from backend.logic.journey_manager import JourneyManager
-from backend.logic.candidate_cards import parse_candidates, compare_candidates
-from backend.logic.state_machine import JourneyState
 from backend.services import civic_api, maps_api, calendar_api
 from backend.utils.jargon_killer import translate as jargon_translate, get_glossary
-from backend.utils.sanitizer import sanitize
 from backend.utils.date_helpers import (
     get_election_countdown,
     get_registration_deadlines,
@@ -37,7 +31,7 @@ from backend.utils.date_helpers import (
 )
 
 # ─── Rate Limiter ─────────────────────────────────────────────
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
 
 # ─── App Initialisation ───────────────────────────────────────
 app = FastAPI(
@@ -68,9 +62,15 @@ async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://www.googletagmanager.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com; frame-src 'self' https://www.google.com/maps/;"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(self), camera=(), microphone=(self)"
+    
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(round(process_time * 1000, 2))
     return response
@@ -81,6 +81,7 @@ app.include_router(nlp.router)
 app.include_router(translate.router)
 app.include_router(user.router)
 app.include_router(candidates.router)
+app.include_router(config.router)
 
 # ─── Frontend Dir ─────────────────────────────────────────────
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
@@ -170,31 +171,46 @@ async def journey_registration(req: RegistrationRequest):
 async def journey_candidates(req: CandidateRequest):
     mgr = _get_session(req.session_id)
     try:
-        data_source = "civic_api"
+        data_source = "live"
         try:
-            voter_info = await civic_api.get_voter_info(req.constituency)
-        except (civic_api.CivicAPIError, Exception):
+            # We attempt the real API first
+            voter_info = await civic_api.get_representatives(req.constituency)
+            Logger.info(f"Civic API Status: 200, Body Snippet: {str(voter_info)[:200]}")
+        except (civic_api.CivicAPIError, Exception) as e:
+            Logger.info(f"Civic API failed, using fallback. Error: {e}")
             voter_info = civic_api.get_mock_voter_info(req.constituency)
-            data_source = "fallback_sample"
+            data_source = "sample"
 
         candidates_data = []
-        for contest in voter_info.get("contests", []):
-            for cand in contest.get("candidates", []):
+        if data_source == "live":
+            for cand in voter_info.get("officials", []):
                 candidates_data.append({
                     "name": cand.get("name", "Unknown"),
-                    "party": cand.get("party", "Unknown"),
+                    "party": cand.get("party", "Unknown Party"),
                     "promises": [
                         "Improve local infrastructure",
                         "Better healthcare facilities",
                         "Increase employment opportunities",
                     ],
                 })
+        else:
+            for contest in voter_info.get("contests", []):
+                for cand in contest.get("candidates", []):
+                    candidates_data.append({
+                        "name": cand.get("name", "Unknown"),
+                        "party": cand.get("party", "Unknown"),
+                        "promises": [
+                            "Improve local infrastructure",
+                            "Better healthcare facilities",
+                            "Increase employment opportunities",
+                        ],
+                    })
 
         result = mgr.get_candidate_cards(
             req.constituency,
             candidates_data if candidates_data else None,
         )
-        result["_source"] = data_source
+        result["data_source"] = data_source
         return result
     except Exception as e:
         raise HTTPException(400, str(e))

@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from backend.services.firebase_service import (
     save_user_progress, load_user_progress, verify_token
 )
-from backend.utils.logger import Logger
 
 router = APIRouter(prefix="/api/user", tags=["User"])
 
