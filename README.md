@@ -1,45 +1,75 @@
-# CivicPulse — Election Journey Orchestrator
+# CivicPulse — Election Process Education Assistant
 
-> **Vertical:** Election Process Education  
-> **Live Deployment:** [CivicPulse on Google Cloud Run](https://civicpulse-engine-gkdrd7zpea-uc.a.run.app)
-
----
-
-## The Problem & Solution
-
-**The Complexity Gap:** Elections are fundamental to democracy, but first-time voters and marginalized communities often face a "Complexity Gap" — confusing bureaucratic jargon, unclear eligibility rules, and anxiety around the physical act of voting using Electronic Voting Machines (EVMs). 
-
-**Our Solution:** CivicPulse uses **Stateful Orchestration** to solve this gap. Instead of overwhelming the user with a static wall of information, the application intelligently tailors the educational journey based on the user's specific state (age, location, and progress). It converts a stressful bureaucratic maze into a clear, guided, step-by-step trail.
+> **Vertical:** Election Process Education
+> **Live Demo:** https://civicpulse-engine-gkdrd7zpea-uc.a.run.app
+> **Stack:** Python · FastAPI · Alpine.js · Google Cloud · Firebase
 
 ---
 
-## Core Features (The 'Edge')
+## The Problem
 
-### 1. The Journey Trail
-At the core of CivicPulse is a strict **state-machine logic** that guides users progressively:
-*   **Eligibility & Onboarding:** Calculates eligibility dynamically. Underage users are securely diverted to a "Civic Education" node, while eligible users proceed.
-*   **Registration Verification:** Guides users to confirm their status on the electoral roll.
-*   **Candidate Research & Polling:** Progressively unlocks candidate profiles and EVM simulation.
-
-### 2. Jargon-Killer
-A built-in **NLP-lite layer** that acts as a real-time translator for government terminology. It automatically detects confusing bureaucratic terms (e.g., "Constituency", "VVPAT", "Electoral Roll") and overlays them with simplified, easily understood language ("your voting area", "official voter list"), maintaining contextual integrity while drastically improving comprehension.
-
-### 3. Interactive EVM Simulator
-A secure, non-recording mock-voting environment that allows users to practice casting a vote. It accurately mimics the interface of a real EVM and features a realistic, 7-second **VVPAT slip animation**, visually confirming the vote and building voter confidence prior to election day.
+First-time voters and marginalised communities face a "Complexity Gap" — confusing jargon, unclear eligibility rules, and anxiety around Electronic Voting Machines (EVMs). CivicPulse solves this with stateful, AI-powered, step-by-step civic education.
 
 ---
 
-## Meaningful Google Services Integration
+## Google Services Integrated
 
-| Google Service | How It's Used | Where in Code |
+| Google Service | Purpose | Implementation |
 |---|---|---|
-| Google Civic Information API | Fetches real-time candidate data and polling locations by district | CandidatesModule, /api/candidates endpoint |
-| Google Maps Platform | Calculates and deep-links route to user's polling booth | ReadinessModule, booth-routing feature |
-| Google Calendar API | Creates .ics reminders for polling day and counting day | ReadinessModule, calendar-reminder feature |
-| Gemini 1.5 Flash | Powers AI candidate insight cards and intelligent search | AIModule, CandidatesModule |
-| Firebase Authentication | Google Sign-In for progress persistence | AuthModule |
-| Google Analytics 4 | Tracks 7 custom civic engagement events | AnalyticsModule |
-| Google Translate API | Translates UI into 7 Indian languages | TranslateModule |
+| **Gemini 1.5 Flash** | Candidate manifesto analysis, intelligent search, civic Q&A chatbot | `backend/services/gemini_service.py` · `/api/ai/*` |
+| **Google Civic Information API** | Real-time candidate and polling location data by constituency | `backend/services/civic_service.py` · `/api/candidates/*` |
+| **Google Cloud Translation API** | Translates UI into 7 Indian languages (Hindi, Bengali, Tamil, Telugu, Marathi, Punjabi) | `backend/services/translate_service.py` · `/api/translate/` |
+| **Google Cloud Natural Language API** | Manifesto sentiment analysis (-1.0 to +1.0 score) shown in candidate compare | `backend/services/nlp_service.py` · `/api/nlp/sentiment` |
+| **Google Maps Platform** | Embedded directions iframe and deep-link routing to polling booth | `frontend/modules.js` ReadinessModule |
+| **Google Calendar API** | Creates polling day calendar event with OAuth (falls back to .ics link) | `frontend/modules.js` ReadinessModule |
+| **Firebase Authentication** | Google Sign-In, token verification via Firebase Admin SDK | `backend/services/firebase_service.py` · `frontend/modules.js` AuthModule |
+| **Firebase Firestore** | Persists user journey progress per authenticated user | `backend/services/firebase_service.py` · `/api/user/progress` |
+| **Google Analytics 4** | Tracks 7 civic engagement events: tab_changed, evm_vote_cast, ai_chat_opened, language_changed, journey_step_completed, booth_route_opened, calendar_reminder_added | `frontend/modules.js` AnalyticsModule |
+
+---
+
+## Architecture
+
+```
+civicpulse/
+├── backend/
+│   ├── main.py              # FastAPI app, CORS, security headers, rate limiting
+│   ├── config.py            # Centralised settings, all API keys from env vars
+│   ├── routers/
+│   │   ├── ai.py            # /api/ai/* — Gemini candidate analysis, chat, search
+│   │   ├── nlp.py           # /api/nlp/* — Google NL API sentiment analysis
+│   │   ├── translate.py     # /api/translate/* — Google Translate API
+│   │   ├── user.py          # /api/user/* — Firebase Auth + Firestore progress
+│   │   └── candidates.py    # /api/candidates/* — Google Civic Information API
+│   ├── services/
+│   │   ├── gemini_service.py
+│   │   ├── translate_service.py
+│   │   ├── nlp_service.py
+│   │   ├── civic_service.py
+│   │   └── firebase_service.py
+│   └── utils/
+│       ├── logger.py        # Structured logging, debug mode via env var
+│       └── cache.py         # TTL in-memory cache for API responses
+├── frontend/
+│   ├── index.html           # SPA with full ARIA, CSP, skip link, landmarks
+│   ├── app.js               # Alpine.js main component, tab management
+│   ├── modules.js           # 8 IIFE modules: Journey, Candidates, EVM, Readiness, AI, Auth, Translate, Analytics
+│   ├── utils.js             # debounce, apiFetch, sanitizeHTML, showToast, FocusManager, Validator, Logger
+│   ├── constants.js         # All magic numbers and string constants
+│   ├── sw.js                # Service Worker: cache-first static, network-first API
+│   └── manifest.json        # PWA manifest
+├── tests/
+│   ├── test_eligibility_logic.py    # 15 tests — age boundary, underage routing
+│   ├── test_jargon_killer_replacement.py  # 12 tests — term replacement accuracy
+│   ├── test_state_transition.py     # 20 tests — journey state machine
+│   ├── test_sanitizer.py            # 18 tests — Zero-PII, prompt injection
+│   ├── test_integration.py          # 12 tests — API endpoint validation
+│   └── test_services.py            # 8 tests — Google service mock fallbacks
+├── .github/workflows/       # CI/CD: test on push, deploy to Cloud Run on merge
+├── Dockerfile               # Multi-stage Alpine build
+├── requirements.txt         # All dependencies including Google API libraries
+└── pytest.ini               # Test configuration
+```
 
 ---
 
@@ -61,38 +91,29 @@ CivicPulse includes a comprehensive testing framework achieving a **100% Pass Ra
 
 ## Security & Accessibility
 
-*   **Zero-PII Architecture:** CivicPulse strictly adheres to Zero-PII principles. All user data (age, location) is processed entirely in ephemeral, in-memory structures (`_sessions`). No personal data is ever persisted to a database or written to disk.
-*   **A11y Compliance:** The platform is engineered for maximum accessibility, featuring a High-Contrast mode toggle, native Voice-Assist integration via the Web Speech API, and fully semantic HTML for screen-reader compatibility.
-
----
-
-## Tech Stack
-
-*   **Backend:** Python (FastAPI / LangGraph)
-*   **Frontend:** React / Vite / Tailwind CSS
-*   **Cloud & APIs:** Google Cloud SDK
+*   **Zero-PII Architecture:** All user data is processed in ephemeral, in-memory structures. No personal data is persisted.
+*   **Security Headers:** X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy on every response.
+*   **Rate Limiting:** slowapi-based rate limiting on all API endpoints.
+*   **WCAG 2.1 AA:** Skip link, aria-live regions, roving tabindex EVM, focus trapping, high-contrast mode with persistence.
 
 ---
 
 ## Setup & Execution
 
 ### 1. Installation
-Clone the repository and install the lightweight requirements:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 ### 2. Run the Application
-Start the FastAPI server. The app runs locally on port 8000:
 ```bash
 python -m uvicorn backend.main:app --port 8000
 ```
 Open `http://127.0.0.1:8000` in your browser.
 
 ### 3. Run the Test Suite
-Execute the full test suite with Pytest to verify 100% compliance:
 ```bash
 python -m pytest tests/ -v
 ```

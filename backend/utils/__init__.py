@@ -1,1 +1,1 @@
-# Utilities — Jargon-Killer dictionary, sanitizers, and date/time helpers.
+# backend/utils package
