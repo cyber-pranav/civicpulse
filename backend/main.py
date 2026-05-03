@@ -182,10 +182,12 @@ async def journey_candidates(req: CandidateRequest):
     mgr = _get_session(req.session_id)
     try:
         # Fetch from Civic API with graceful fallback
+        data_source = "civic_api"
         try:
             voter_info = await civic_api.get_voter_info(req.constituency)
         except (civic_api.CivicAPIError, Exception):
             voter_info = civic_api.get_mock_voter_info(req.constituency)
+            data_source = "fallback_sample"
 
         # Parse candidates from contests
         candidates_data = []
@@ -201,10 +203,12 @@ async def journey_candidates(req: CandidateRequest):
                     ],
                 })
 
-        return mgr.get_candidate_cards(
+        result = mgr.get_candidate_cards(
             req.constituency,
             candidates_data if candidates_data else None,
         )
+        result["_source"] = data_source
+        return result
     except Exception as e:
         raise HTTPException(400, str(e))
 

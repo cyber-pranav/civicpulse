@@ -472,6 +472,24 @@
                 </div>
             </section>
 
+            <!-- Candidates Loading State -->
+            <div x-show="candidatesLoading" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8 flex items-center gap-4 shadow-sm" aria-live="polite">
+                <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent flex-shrink-0"></div>
+                <div>
+                    <p class="font-title-lg text-title-lg text-blue-800 dark:text-blue-200" x-text="candidatesLoadingMsg">Fetching candidates via Google Civic API...</p>
+                    <p class="font-body-md text-body-md text-blue-600 dark:text-blue-300 mt-1">Querying Google Civic Information API for your constituency...</p>
+                </div>
+            </div>
+
+            <!-- Fallback Notice Banner -->
+            <div x-show="candidatesFallback && candidatesLoaded" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl p-5 mb-8 flex items-start gap-4 shadow-sm" role="alert">
+                <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-2xl mt-0.5 flex-shrink-0" aria-hidden="true">info</span>
+                <div>
+                    <p class="font-title-lg text-title-lg text-amber-800 dark:text-amber-200">Live data unavailable — showing sample candidates.</p>
+                    <p class="font-body-md text-body-md text-amber-700 dark:text-amber-300 mt-1">The Google Civic Information API did not return live data for your area. The candidates below are representative samples to demonstrate the platform's features.</p>
+                </div>
+            </div>
+
             <section class="flex flex-col gap-md mb-8">
                 <h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-xs">
                     <span class="material-symbols-outlined text-primary" data-weight="fill">lightbulb</span> Jargon-Killer

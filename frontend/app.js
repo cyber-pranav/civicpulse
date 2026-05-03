@@ -44,6 +44,10 @@ function civicPulse() {
     civicActivity: { evmCompleted: 0, calendarAdded: 0, activeJourneys: 0 },
     // A5: Calendar API
     calendarAdding: false,
+    // Candidates loading state
+    candidatesLoading: false,
+    candidatesLoadingMsg: '',
+    candidatesFallback: false,
 
     jargonMap: {
       'constituency':'your voting area','electoral roll':'the official voter list',
@@ -215,24 +219,61 @@ function civicPulse() {
       this.loading = false;
     },
 
-    /** @description Load candidates */
+    /** @description Load candidates via Google Civic API */
     async loadCandidates() {
+      this.candidatesLoading = true;
+      this.candidatesFallback = false;
+      this.candidatesLoadingMsg = 'Fetching candidates via Google Civic API...';
+      announce('Fetching candidates via Google Civic API', 'polite');
       try {
         var d = await apiFetch(API + '/api/journey/candidates', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ session_id: this.sessionId, constituency: this.constituency || this.location })
         });
-        this.state = d.state; this.message = d.message;
-        this.candidates = d.candidate_cards || []; this.constituency = d.constituency || '';
-        this.allCandidates = this.candidates.slice();
-        this.candidatesLoaded = true;
-        this.switchTab('candidates');
-        AnalyticsModule.track('journey_step_completed', { step: 'candidates' });
-        this._saveProgress();
-        this.speak(d.message);
-        // A1: Auto-load AI insights for each candidate
-        this._loadAllCandidateInsights();
-      } catch (e) { this.message = 'Error loading candidates.'; showToast('Could not load candidates', 'error'); }
+        if (!d) throw new Error('Empty response');
+        this._applyCandidateData(d);
+      } catch (e) {
+        Logger.error('loadCandidates failed:', e.message);
+        this._loadFallbackCandidates();
+      }
+      this.candidatesLoading = false;
+      this.candidatesLoadingMsg = '';
+    },
+
+    /** @description Apply candidate data from API response */
+    _applyCandidateData(d) {
+      this.state = d.state; this.message = d.message;
+      this.candidates = d.candidate_cards || [];
+      this.constituency = d.constituency || '';
+      this.allCandidates = this.candidates.slice();
+      this.candidatesLoaded = true;
+      if (d._source === 'fallback_sample') {
+        this.candidatesFallback = true;
+        announce('Live data unavailable. Showing sample candidates.', 'polite');
+      } else {
+        announce('Candidates loaded from Google Civic Information API', 'polite');
+      }
+      this.switchTab('candidates');
+      AnalyticsModule.track('journey_step_completed', { step: 'candidates', source: d._source || 'unknown' });
+      this._saveProgress();
+      this.speak(d.message);
+      this._loadAllCandidateInsights();
+    },
+
+    /** @description Load hardcoded fallback candidates when API fails */
+    _loadFallbackCandidates() {
+      this.candidatesFallback = true;
+      this.candidates = [
+        { name: 'Arun Sharma', party: 'National Progress Party', manifesto_points: ['Improve local infrastructure', 'Better healthcare facilities', 'Increase employment opportunities'] },
+        { name: 'Priya Deshmukh', party: "People's Democratic Front", manifesto_points: ['Digital literacy for all', 'Women safety initiatives', 'Clean energy push'] },
+        { name: 'Rahul Kumar', party: 'Independent', manifesto_points: ['Anti-corruption measures', 'Youth skill development', 'Agricultural reform'] }
+      ];
+      this.allCandidates = this.candidates.slice();
+      this.candidatesLoaded = true;
+      this.switchTab('candidates');
+      announce('Live data unavailable. Showing sample candidates.', 'polite');
+      showToast('Live data unavailable — showing sample candidates.', 'info');
+      this._loadAllCandidateInsights();
     },
 
     /**
