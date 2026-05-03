@@ -125,11 +125,14 @@ async def test_polling_info_fallback(async_client):
 @pytest.mark.asyncio
 async def test_civic_api_live(async_client, monkeypatch):
     """POST /api/journey/candidates with mocked live civic api data."""
-    async def mock_get_representatives(address):
-        return {"officials": [{"name": "Mock Official", "party": "Mock Party"}]}
+    async def mock_get(*args, **kwargs):
+        class MockResponse:
+            status_code = 200
+            def json(self):
+                return {"officials": [{"name": "Mock Official", "party": "Mock Party"}]}
+        return MockResponse()
     
-    from backend.services import civic_api
-    monkeypatch.setattr(civic_api, "get_representatives", mock_get_representatives)
+    monkeypatch.setattr("httpx.AsyncClient.get", mock_get)
     
     r = await async_client.post("/api/journey/start")
     sid = r.json()["session_id"]

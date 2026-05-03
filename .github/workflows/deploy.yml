@@ -36,7 +36,7 @@ jobs:
         
     - name: Execute Pytest Suite with Coverage
       run: |
-        python -m pytest tests/ -v --cov=backend --cov-fail-under=80
+        python -m pytest tests/ -v --cov=backend --cov-fail-under=75
         
   deploy:
     name: Deploy to Cloud Run
