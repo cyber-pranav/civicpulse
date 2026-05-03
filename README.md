@@ -29,8 +29,7 @@ First-time voters and marginalised communities face a "Complexity Gap" — confu
 ---
 
 ## Architecture
-
-```
+```text
 civicpulse/
 ├── backend/
 │   ├── main.py              # FastAPI app, CORS, security headers, rate limiting
@@ -64,7 +63,7 @@ civicpulse/
 │   ├── test_state_transition.py     # 20 tests — journey state machine
 │   ├── test_sanitizer.py            # 18 tests — Zero-PII, prompt injection
 │   ├── test_integration.py          # 12 tests — API endpoint validation
-│   └── test_services.py            # 8 tests — Google service mock fallbacks
+│   └── test_services.py             # 8 tests — Google service mock fallbacks
 ├── .github/workflows/       # CI/CD: test on push, deploy to Cloud Run on merge
 ├── Dockerfile               # Multi-stage Alpine build
 ├── requirements.txt         # All dependencies including Google API libraries
@@ -73,47 +72,84 @@ civicpulse/
 
 ---
 
-## Test Coverage
+## Testing — 85 Tests, 100% Pass Rate
 
-CivicPulse includes a comprehensive testing framework achieving a **100% Pass Rate** across 85 unit and integration tests.
-
-| Test File | What It Tests | Count |
+| Test File | Coverage | Tests |
 |---|---|---|
-| test_eligibility_logic.py | Age boundaries, underage routing | 15 tests |
-| test_jargon_killer_replacement.py | Term replacement accuracy | 12 tests |
-| test_state_transition.py | Journey state machine integrity | 20 tests |
-| test_sanitizer.py | Zero-PII, prompt injection defense | 18 tests |
-| test_integration.py | API endpoint validation | 12 tests |
-| test_services.py | Google service mock fallbacks | 8 tests |
-| **Total** | | **85 tests** |
+| `test_eligibility_logic.py` | Age boundaries, underage → Civic Education routing, first-time voter path | 15 |
+| `test_jargon_killer_replacement.py` | Case-preserving multi-word term replacement, edge cases | 12 |
+| `test_state_transition.py` | Journey state machine integrity, step-skip prevention | 20 |
+| `test_sanitizer.py` | Zero-PII compliance, bleach sanitization, prompt injection defence | 18 |
+| `test_integration.py` | All API endpoint status codes, request validation, error responses | 12 |
+| `test_services.py` | Google service mock fallbacks, cache hit/miss behaviour | 8 |
+| **Total** | | **85** |
+
+Run tests: `python -m pytest tests/ -v`
 
 ---
 
-## Security & Accessibility
+## Security
 
-*   **Zero-PII Architecture:** All user data is processed in ephemeral, in-memory structures. No personal data is persisted.
-*   **Security Headers:** X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy on every response.
-*   **Rate Limiting:** slowapi-based rate limiting on all API endpoints.
-*   **WCAG 2.1 AA:** Skip link, aria-live regions, roving tabindex EVM, focus trapping, high-contrast mode with persistence.
+- **Zero-PII Architecture** — all user data processed in ephemeral `_sessions`, never persisted to disk
+- **bleach sanitization** — all user input sanitised before processing (`backend/utils/` + frontend `sanitizeHTML()`)
+- **Rate limiting** — `slowapi` limits all API endpoints to 60 req/min per IP
+- **Firebase token verification** — every authenticated route verifies JWT via Firebase Admin SDK
+- **Security headers** — `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy` on every response
+- **Content Security Policy** — CSP meta tag in `index.html` restricts script/style sources
+- **No hardcoded secrets** — all API keys in environment variables via `backend/config.py`
 
 ---
 
-## Setup & Execution
+## Accessibility
 
-### 1. Installation
+- Skip-to-main-content link as first body element
+- Full landmark structure: `<header>`, `<nav aria-label>`, `<main id="main-content">`, `<footer>`
+- EVM ballot implements WCAG roving tabindex radio group (ArrowUp/Down/Home/End)
+- `aria-live="polite"` on VVPAT result area for screen reader announcements
+- Focus trap in AI chat drawer via `FocusManager.trap()`
+- `aria-hidden="true"` on all decorative icons
+- High-contrast mode toggle persisted in `localStorage`
+- `lang` attribute on `<html>` updates dynamically on language change
+- All form inputs have explicit `<label>`, `aria-required`, `aria-describedby`
+- `:focus-visible` outline on all interactive elements
+
+---
+
+## Performance
+
+- Service Worker with cache-first (static) and network-first (API) strategies
+- Lazy tab rendering — only Journey tab renders on initial load
+- `sessionStorage` caches all API responses client-side
+- TTL in-memory cache (`cachetools`) prevents redundant Google API calls server-side
+- All inputs debounced 300ms via shared `debounce()` utility
+- Multi-stage Alpine Docker build minimises image size
+- `dns-prefetch` and `preconnect` hints for all external domains
+- JSON-LD structured data for search engine discoverability
+- PWA manifest for installability
+
+---
+
+## Setup
+
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Clone and install
+git clone https://github.com/cyber-pranav/civicpulse.git
+cd civicpulse
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-```
 
-### 2. Run the Application
-```bash
-python -m uvicorn backend.main:app --port 8000
-```
-Open `http://127.0.0.1:8000` in your browser.
+# Configure environment variables
+cp .env.example .env
+# Add: GEMINI_API_KEY, GOOGLE_API_KEY, FIREBASE_CREDENTIALS_PATH
 
-### 3. Run the Test Suite
-```bash
+# Run locally
+uvicorn backend.main:app --port 8000
+
+# Run tests
 python -m pytest tests/ -v
 ```
+
+---
+
+## Built For
+HacSkill Virtual PromptWars — Election Process Education vertical
