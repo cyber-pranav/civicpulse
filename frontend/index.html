@@ -3,12 +3,69 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="CivicPulse — Your personalized Election Journey Orchestrator. Check eligibility, research candidates, practice mock voting, and get ready for Election Day." />
+    <meta name="description" content="CivicPulse helps Indian voters understand the election process, find candidates, practice on an EVM simulator, and prepare for polling day.">
+    <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#003461" />
-    <meta property="og:title" content="CivicPulse — Election Readiness" />
-    <meta property="og:description" content="Interactive election guide: eligibility check, candidate research, EVM simulator, and polling-day preparation." />
-    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CivicPulse — Election Readiness">
+    <meta property="og:description" content="Your personalized Indian election guide">
+    <meta property="og:url" content="https://civicpulse-engine-gkdrd7zpea-uc.a.run.app/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
     <title>CivicPulse — Election Readiness | Your Civic Journey Guide</title>
+
+    <!-- B1: JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "CivicPulse",
+      "description": "Indian election process education assistant",
+      "url": "https://civicpulse-engine-gkdrd7zpea-uc.a.run.app/",
+      "applicationCategory": "EducationApplication",
+      "operatingSystem": "Any",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"},
+      "featureList": ["EVM Simulator", "Candidate Discovery", "Voter Journey", "AI Election Assistant"]
+    }
+    </script>
+
+    <!-- B4: Preconnect + DNS Prefetch (exact order) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firebaseapp.com">
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+    <link rel="dns-prefetch" href="https://generativelanguage.googleapis.com">
+    <link rel="dns-prefetch" href="https://translation.googleapis.com">
+    <link rel="dns-prefetch" href="https://language.googleapis.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons" as="style">
+
+    <!-- B3: Critical CSS Inlined -->
+    <style>
+      /* Skip link */
+      .skip-link{position:absolute;top:-40px;left:0;background:#003461;color:#fff;padding:8px 16px;z-index:1000;transition:top .2s}
+      .skip-link:focus{top:0}
+      /* Navbar critical */
+      header{display:flex;justify-content:space-between;align-items:center;height:64px;position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e2e8f0}
+      /* Hero / loading skeleton */
+      .cp-skeleton{background:linear-gradient(90deg,#f0f0f3 25%,#e8e8ea 50%,#f0f0f3 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+      @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+      /* Toast critical */
+      .cp-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:all .3s ease;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+      .cp-toast-show{transform:translateX(-50%) translateY(0);opacity:1}
+      .cp-toast-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+      .cp-toast-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+      .cp-toast-info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+      /* D4: High Contrast Mode */
+      body.high-contrast{--hc-bg:#000;--hc-text:#fff;--hc-border:#ff0;--hc-link:#0ff;--hc-button:#ff0}
+      body.high-contrast *{background-color:var(--hc-bg)!important;color:var(--hc-text)!important;border-color:var(--hc-border)!important;outline-color:var(--hc-border)!important}
+      body.high-contrast a{color:var(--hc-link)!important}
+      body.high-contrast button{color:var(--hc-button)!important;border:2px solid var(--hc-button)!important}
+      body.high-contrast img{filter:contrast(1.2) brightness(1.1)}
+      /* Focus visible */
+      :focus-visible{outline:3px solid #2563eb;outline-offset:2px;border-radius:4px}
+    </style>
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -154,10 +211,24 @@
         }
         .lazy-fade-in { animation: fade-in-up 0.4s ease-out both; }
     </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- App Scripts (order matters) -->
+    <script src="/constants.js"></script>
+    <script src="/utils.js"></script>
+    <script src="/modules.js"></script>
     <script src="/app.js"></script>
 </head>
 
 <body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col pb-24 md:pb-0" x-data="civicPulse()" x-init="init()">
+    <!-- Skip link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <!-- D2: Live Region Announcements -->
+    <div id="sr-announcer" aria-live="polite" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+    <div id="sr-assertive" aria-live="assertive" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
     <!-- TopAppBar -->
     <header class="bg-white dark:bg-slate-900 flex justify-between items-center h-16 px-4 md:px-8 w-full sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div class="flex items-center gap-4">
@@ -165,7 +236,7 @@
             <h1 class="text-xl font-bold tracking-tight text-blue-900 dark:text-blue-100 font-headline-lg">CivicPulse</h1>
         </div>
         
-        <nav class="hidden md:flex items-center gap-6">
+        <nav aria-label="Main navigation" class="hidden md:flex items-center gap-6">
             <a href="#" @click.prevent="tab = 'journey'" :class="tab === 'journey' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600'" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Journey</a>
             <a href="#" @click.prevent="if(isEligible) tab = 'candidates'" :class="[tab === 'candidates' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600', !isEligible ? 'opacity-50 cursor-not-allowed' : '']" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">Candidates</a>
             <a href="#" @click.prevent="if(isEligible) tab = 'evm'" :class="[tab === 'evm' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-slate-600', !isEligible ? 'opacity-50 cursor-not-allowed' : '']" class="h-16 flex items-center px-2 font-public-sans text-base font-semibold transition-opacity active:opacity-80">EVM Demo</a>
@@ -191,7 +262,7 @@
     </div>
 
     <!-- Onboarding Screen -->
-    <main x-show="showOnboarding" class="flex-grow w-full max-w-[720px] mx-auto bg-surface rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-surface-variant overflow-hidden mt-8">
+    <main id="main-content" x-show="showOnboarding" class="flex-grow w-full max-w-[720px] mx-auto bg-surface rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-surface-variant overflow-hidden mt-8">
         <div class="px-8 pt-12 pb-8 text-center">
             <span class="material-symbols-outlined text-primary text-5xl mb-4" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
             <h1 class="font-display-lg text-display-lg text-primary mb-2">Welcome</h1>
@@ -201,14 +272,18 @@
             <form class="space-y-8" @submit.prevent="submitOnboarding()">
                 <div class="flex flex-col space-y-2">
                     <label class="font-title-lg text-title-lg text-on-surface" for="age">What is your age?</label>
-                    <input x-model="age" class="w-full h-[60px] px-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="age" name="age" placeholder="e.g., 25" type="number" required />
+                    <input x-model="age" aria-required="true" aria-describedby="age-hint" class="w-full h-[60px] px-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="age" name="age" placeholder="e.g., 25" type="number" required min="1" max="120" />
+                    <span id="age-hint" class="text-xs text-on-surface-variant">Enter your age between 1 and 120</span>
+                    <span id="age-error" role="alert" aria-live="assertive" class="text-xs text-red-600 hidden"></span>
                 </div>
                 <div class="flex flex-col space-y-2">
                     <label class="font-title-lg text-title-lg text-on-surface" for="location">Where are you voting?</label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">location_on</span>
-                        <input x-model="location" class="w-full h-[60px] pl-12 pr-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="location" name="location" placeholder="State or District" type="text" required />
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" aria-hidden="true">location_on</span>
+                        <input x-model="location" aria-required="true" aria-describedby="location-hint" class="w-full h-[60px] pl-12 pr-4 font-body-lg text-body-lg bg-surface-container-lowest border-2 border-surface-variant rounded-lg focus:border-primary focus:ring-0 transition-colors" id="location" name="location" placeholder="State or District" type="text" required />
                     </div>
+                    <span id="location-hint" class="text-xs text-on-surface-variant">Your state or district name</span>
+                    <span id="location-error" role="alert" aria-live="assertive" class="text-xs text-red-600 hidden"></span>
                 </div>
                 <div class="flex items-center justify-between p-6 bg-surface-container-low rounded-xl border border-surface-variant">
                     <div class="flex items-center space-x-4">
@@ -278,7 +353,7 @@
                 </div>
             </div>
 
-            <!-- Counting Day Reminder Banner -->
+            <!-- Counting Day Reminder Banner with A5 Google Calendar API -->
             <div class="bg-tertiary-fixed text-on-tertiary-fixed p-5 rounded-xl flex items-start gap-4 border border-tertiary-container/20 mb-8 shadow-sm">
                 <span class="material-symbols-outlined text-tertiary-container text-3xl mt-0.5" data-weight="fill">event</span>
                 <div class="flex-grow">
@@ -288,9 +363,35 @@
                         <button @click="downloadCountingDayICS()" id="btn-download-ics" class="bg-tertiary-container text-on-tertiary-container font-label-lg text-label-lg px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98] shadow-sm">
                             <span class="material-symbols-outlined text-[18px]">download</span> Download .ics Reminder
                         </button>
-                        <a :href="calendarLinks.find(l => l.title.includes('Counting'))?.calendar_url || '#'" target="_blank" rel="noopener" class="bg-white/20 text-on-tertiary-fixed font-label-lg text-label-lg px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/30 transition-colors border border-white/20">
-                            <span class="material-symbols-outlined text-[18px]">open_in_new</span> Add to Google Calendar
-                        </a>
+                        <button @click="addToGoogleCalendar()" :disabled="calendarAdding" id="btn-add-gcal" class="bg-white/20 text-on-tertiary-fixed font-label-lg text-label-lg px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-white/30 transition-colors border border-white/20 disabled:opacity-50">
+                            <span class="material-symbols-outlined text-[18px]" x-text="calendarAdding ? 'hourglass_top' : 'open_in_new'">open_in_new</span>
+                            <span x-text="calendarAdding ? 'Adding...' : 'Add to Google Calendar'">Add to Google Calendar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- A4: Live Civic Activity Widget -->
+            <div class="bg-surface border border-surface-variant rounded-xl p-5 mb-8 shadow-sm">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="relative flex h-3 w-3 flex-shrink-0">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </div>
+                    <h3 class="font-title-lg text-title-lg text-on-surface">Live Civic Activity</h3>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="text-2xl font-bold text-primary" x-text="civicActivity.evmCompleted">0</span>
+                        <span class="font-label-md text-label-md text-on-surface-variant">EVM Demos Today</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="text-2xl font-bold text-tertiary-container" x-text="civicActivity.calendarAdded">0</span>
+                        <span class="font-label-md text-label-md text-on-surface-variant">Reminders Set</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="text-2xl font-bold text-secondary" x-text="civicActivity.activeJourneys">0</span>
+                        <span class="font-label-md text-label-md text-on-surface-variant">Active Journeys</span>
                     </div>
                 </div>
             </div>
@@ -399,17 +500,17 @@
             <section class="flex flex-col items-center mt-lg mb-8">
                 <div class="w-full max-w-[720px] flex flex-col gap-md">
                     <div class="text-center mb-sm">
-                        <h2 class="font-headline-md text-headline-md text-on-surface">Interactive EVM Simulation</h2>
+                        <h2 id="evm-heading" class="font-headline-md text-headline-md text-on-surface">Interactive EVM Simulation</h2>
                         <p class="font-body-md text-body-md text-on-surface-variant">Practice casting your vote below. This is a secure, non-recording simulation.</p>
                     </div>
                     <div class="bg-surface-container border border-surface-variant rounded-xl p-md md:p-lg shadow-sm flex flex-col gap-md">
-                        <div class="flex flex-col border border-surface-variant rounded-lg overflow-hidden bg-white">
+                        <div role="radiogroup" aria-labelledby="evm-heading" aria-required="true" @keydown="handleEVMKeyboard($event)" class="flex flex-col border border-surface-variant rounded-lg overflow-hidden bg-white">
                             <!-- Loop through actual candidates -->
-                            <template x-for="cand in candidates" :key="cand.name">
-                                <div class="flex items-center justify-between p-sm border-b border-surface-variant last:border-b-0 hover:bg-surface-container-lowest transition-colors">
+                            <template x-for="(cand, cIdx) in candidates" :key="cand.name">
+                                <div role="radio" :aria-checked="selectedEVMCandidate && selectedEVMCandidate.name === cand.name ? 'true' : 'false'" :tabindex="cIdx === 0 ? '0' : '-1'" :data-evm-index="cIdx" class="flex items-center justify-between p-sm border-b border-surface-variant last:border-b-0 hover:bg-surface-container-lowest transition-colors outline-none" :class="selectedEVMCandidate && selectedEVMCandidate.name === cand.name ? 'bg-primary-fixed/20 ring-2 ring-primary' : ''">
                                     <div class="flex items-center gap-md flex-grow">
                                         <div class="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
-                                            <span class="material-symbols-outlined text-3xl">person</span>
+                                            <span class="material-symbols-outlined text-3xl" aria-hidden="true">person</span>
                                         </div>
                                         <div class="flex flex-col">
                                             <span class="font-title-lg text-title-lg text-on-surface" x-text="cand.name"></span>
@@ -435,12 +536,12 @@
                             <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none"></div>
                             
                             <div x-show="!vvpatVisible && !evmVoted" class="text-center z-10 flex flex-col items-center gap-xs opacity-60">
-                                <span class="material-symbols-outlined text-4xl text-outline">receipt_long</span>
+                                <span class="material-symbols-outlined text-4xl text-outline" aria-hidden="true">receipt_long</span>
                                 <span class="font-label-lg text-label-lg text-outline">VVPAT Verification Area</span>
                                 <span class="font-body-md text-body-md text-outline-variant max-w-[250px]">Your selection will appear here briefly for visual confirmation.</span>
                             </div>
 
-                            <div x-show="vvpatVisible" x-transition class="text-center z-10 bg-white p-4 border border-outline rounded-sm shadow-md vvpat-slip-animate">
+                            <div x-show="vvpatVisible" aria-live="assertive" x-transition class="text-center z-10 bg-white p-4 border border-outline rounded-sm shadow-md vvpat-slip-animate">
                                 <span class="block text-xs text-outline-variant uppercase tracking-widest mb-2">— VVPAT Verification Slip —</span>
                                 <span class="block text-2xl font-bold mb-2" x-text="vvpatCandidate?.name"></span>
                                 <span class="block text-xl" x-text="vvpatCandidate?.party"></span>
@@ -464,6 +565,75 @@
                 <p class="font-body-lg text-body-lg text-on-surface-variant">Your personalized guide to prepare for polling day.</p>
             </div>
 
+            <!-- A2: Natural Language Search Bar -->
+            <section class="mb-8" x-show="candidatesLoaded">
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input x-model="candidateSearchQuery" @input="searchCandidatesNL()" type="text" id="candidate-nl-search" placeholder="Search by name, party, or issue..." class="w-full h-14 pl-12 pr-4 font-body-lg text-body-lg bg-surface border-2 border-surface-variant rounded-xl focus:border-primary focus:ring-0 transition-colors" />
+                </div>
+                <p x-show="candidateSearchResults !== null" class="mt-2 text-sm text-on-surface-variant">
+                    <span class="material-symbols-outlined text-[16px] align-middle text-primary">auto_awesome</span>
+                    AI-powered search — <span x-text="candidates.length"></span> result(s)
+                </p>
+            </section>
+
+            <!-- A1: Candidate Cards with AI Insights -->
+            <section class="flex flex-col gap-4 mb-8" x-show="candidatesLoaded" x-transition>
+                <h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">groups</span> Candidates
+                </h3>
+                <template x-for="cand in candidates" :key="cand.name">
+                    <div class="bg-surface rounded-xl border border-surface-variant p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-3xl">person</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-title-lg text-title-lg text-on-surface" x-text="cand.name"></span>
+                                <span class="font-body-md text-body-md text-on-surface-variant uppercase tracking-wider text-xs" x-text="cand.party"></span>
+                            </div>
+                        </div>
+                        <!-- A1: AI Insight Section -->
+                        <div class="mt-3 pt-3 border-t border-surface-variant">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+                                <span class="font-label-lg text-label-lg text-primary">AI Insight</span>
+                            </div>
+                            <!-- Loading state -->
+                            <div x-show="isInsightLoading(cand)" class="flex items-center gap-2 text-on-surface-variant">
+                                <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+                                <span class="text-sm">Analyzing manifesto...</span>
+                            </div>
+                            <!-- Insight loaded -->
+                            <div x-show="getInsight(cand) && !isInsightLoading(cand)" class="space-y-2">
+                                <!-- Tone Badge -->
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border" :class="toneBadgeClass(getInsight(cand)?.tone)" x-text="getInsight(cand)?.tone || 'Neutral'"></span>
+                                </div>
+                                <!-- Top 3 Topic Chips -->
+                                <div class="flex flex-wrap gap-1.5">
+                                    <template x-for="topic in (getInsight(cand)?.topTopics || [])" :key="topic">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-primary-fixed text-on-primary-fixed text-xs font-medium" x-text="topic"></span>
+                                    </template>
+                                </div>
+                                <!-- Voter Appeal -->
+                                <p class="text-sm text-on-surface-variant" x-text="getInsight(cand)?.voterAppeal"></p>
+                                <!-- Red Flags -->
+                                <div x-show="getInsight(cand)?.redFlags?.length > 0" class="flex flex-col gap-1">
+                                    <template x-for="flag in (getInsight(cand)?.redFlags || [])" :key="flag">
+                                        <div class="flex items-start gap-1.5 text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-md border border-amber-200">
+                                            <span class="material-symbols-outlined text-[14px] mt-0.5">warning</span>
+                                            <span x-text="flag"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </section>
+
+            <!-- Candidate Compare -->
             <section class="flex flex-col gap-4 mb-8" x-show="candidatesLoaded" x-transition class="lazy-fade-in">
                 <h3 class="font-title-lg text-title-lg text-on-surface">Candidate Compare</h3>
                 <div id="candidate-compare" class="bg-surface rounded-xl border border-surface-variant overflow-hidden shadow-sm">
@@ -479,6 +649,37 @@
                     </div>
                     <div class="p-4 text-center" x-show="candidates.length < 2">
                         Please select a valid constituency to compare candidates.
+                    </div>
+                </div>
+
+                <!-- A3: Manifesto Sentiment Analysis -->
+                <div x-show="candidates.length >= 2" class="mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-label-lg text-label-lg text-on-surface flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px] text-primary">sentiment_satisfied</span>
+                            Manifesto Sentiment Analysis — powered by Google NL API
+                        </h4>
+                        <button @click="runSentimentAnalysis()" :disabled="sentimentLoading" class="text-xs px-3 py-1.5 bg-primary text-on-primary rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1">
+                            <span x-show="sentimentLoading" class="animate-spin rounded-full h-3 w-3 border-2 border-on-primary border-t-transparent"></span>
+                            <span x-text="sentimentLoading ? 'Analyzing...' : 'Analyze'"></span>
+                        </button>
+                    </div>
+                    <div x-show="sentimentScores.length > 0" class="space-y-3">
+                        <template x-for="ss in sentimentScores" :key="ss.name">
+                            <div class="bg-surface-container-low rounded-lg p-3 border border-surface-variant">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="font-label-lg text-label-lg text-on-surface" x-text="ss.name"></span>
+                                    <span class="text-xs font-mono text-on-surface-variant" x-text="'Score: ' + ss.score.toFixed(2)"></span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 relative overflow-hidden">
+                                    <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gray-400 z-10"></div>
+                                    <div class="h-2.5 rounded-full transition-all duration-500" :class="sentimentBarColor(ss.score)" :style="'width:' + sentimentBarWidth(ss.score) + '%'"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] text-on-surface-variant mt-0.5">
+                                    <span>-1.0 (Negative)</span><span>0</span><span>+1.0 (Positive)</span>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </section>
@@ -533,7 +734,7 @@
     </div>
 
     <!-- BottomNavBar -->
-    <nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-white dark:bg-slate-900 px-2 pb-safe border-t border-slate-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+    <nav aria-label="Bottom navigation" class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-white dark:bg-slate-900 px-2 pb-safe border-t border-slate-200 dark:border-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button @click="tab = 'journey'; showOnboarding = false" :class="tab === 'journey' && !showOnboarding ? 'bg-blue-50 text-blue-900' : 'text-slate-500'" class="flex flex-col items-center justify-center rounded-xl px-3 py-1 font-public-sans text-[12px] font-bold">
             <span class="material-symbols-outlined mb-1" :data-weight="tab==='journey'?'fill':''">route</span>
             <span>Journey</span>

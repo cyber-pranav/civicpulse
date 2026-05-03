@@ -1,0 +1,30 @@
+/** @module Constants */
+/** All magic numbers and configuration strings for CivicPulse */
+var CONSTANTS = {
+  DEBOUNCE_DELAY: 300,
+  RATE_LIMIT_MAX: 10,
+  RATE_LIMIT_WINDOW_MS: 60000,
+  CACHE_NAME: 'civicpulse-v1',
+  GEMINI_MODEL: 'gemini-1.5-flash',
+  GEMINI_MAX_TOKENS: 1000,
+  FIRESTORE_COLLECTION: 'userProgress',
+  REALTIME_DB_PATH: 'civicActivity',
+  TOAST_DURATION_MS: 3000,
+  SKELETON_DELAY_MS: 300,
+  GOOGLE_CALENDAR_COLOR_ID: '9',
+  SUPPORTED_LANGUAGES: ['en', 'hi', 'bn', 'ta', 'te', 'mr', 'pa'],
+  DEFAULT_LANGUAGE: 'en',
+  TRANSLATE_BATCH_SIZE: 50,
+  API_RETRY_MAX: 1,
+  API_RETRY_DELAY_MS: 500,
+  VVPAT_DISPLAY_SECONDS: 7,
+  BEEP_FREQUENCY: 880,
+  BEEP_DURATION: 0.3,
+  TAB_SWITCH_DEBOUNCE_MS: 100,
+  SLOW_LOAD_THRESHOLD_MS: 3000,
+  NL_API_URL: 'https://language.googleapis.com/v1/documents:analyzeSentiment',
+  CALENDAR_API_URL: 'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+  CALENDAR_SCOPES: 'https://www.googleapis.com/auth/calendar.events',
+  COUNTING_DAY_DATE: '2026-05-04',
+  COUNTING_DAY_LABEL: 'Counting Day — CivicPulse Reminder'
+};
