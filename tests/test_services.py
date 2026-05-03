@@ -174,6 +174,8 @@ class TestCivicService:
         async def mock_get(*args, **kwargs):
             class MockResponse:
                 status_code = 200
+                text = "mock response"
+                def raise_for_status(self): pass
                 def json(self):
                     return {
                         "officials": [{"name": "Official 1", "party": "Party 1", "urls": ["http://url"], "photoUrl": "http://photo"}],
@@ -189,8 +191,7 @@ class TestCivicService:
         cache_delete("civic_candidates_constituency")
         
         res = await get_candidates("constituency")
-        assert res["data_source"] == "live"
-        assert len(res["candidate_cards"]) > 0
-        assert res["candidate_cards"][0]["name"] == "Official 1"
+        assert len(res) > 0
+        assert res[0]["name"] == "Official 1"
 
 

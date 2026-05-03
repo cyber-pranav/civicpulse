@@ -15,7 +15,7 @@ def test_parse_candidates():
     assert len(cs) == 2
 
 def test_compare_candidates():
-    c1 = {'id': '1', 'name': 'A'}
-    c2 = {'id': '2', 'name': 'B'}
-    comp = compare_candidates([c1, c2], ['1', '2'])
-    assert comp['candidate_1']['name'] == 'A'
+    c1 = {'id': '1', 'name': 'A', 'party': 'P1', 'education': 'E1', 'criminal_record': 'CR1', 'declared_assets': 'DA1', 'key_promises': ['P1']}
+    c2 = {'id': '2', 'name': 'B', 'party': 'P2', 'education': 'E2', 'criminal_record': 'CR2', 'declared_assets': 'DA2', 'key_promises': ['P2']}
+    comp = compare_candidates([c1, c2])
+    assert comp['candidates'][0] == 'A'

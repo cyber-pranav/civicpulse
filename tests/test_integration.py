@@ -125,9 +125,12 @@ async def test_polling_info_fallback(async_client):
 @pytest.mark.asyncio
 async def test_civic_api_live(async_client, monkeypatch):
     """POST /api/journey/candidates with mocked live civic api data."""
+    monkeypatch.setenv("GOOGLE_CIVIC_API_KEY", "dummy_key")
     async def mock_get(*args, **kwargs):
         class MockResponse:
             status_code = 200
+            text = "mock response"
+            def raise_for_status(self): pass
             def json(self):
                 return {"officials": [{"name": "Mock Official", "party": "Mock Party"}]}
         return MockResponse()
