@@ -130,7 +130,7 @@ class TranslateJargonRequest(BaseModel):
 @app.get("/api/health", tags=["Info"])
 async def health():
     return {
-        "status": "healthy",
+        "status": "operational",
         "service": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "date": str(CURRENT_DATE),

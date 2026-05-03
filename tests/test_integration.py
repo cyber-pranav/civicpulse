@@ -102,16 +102,16 @@ async def test_calendar_ics_download(async_client):
 
 @pytest.mark.asyncio
 async def test_glossary_endpoint(async_client):
-    """GET /api/glossary returns the jargon dictionary."""
-    r = await async_client.get("/api/glossary")
+    """GET /api/jargon/glossary returns the jargon dictionary."""
+    r = await async_client.get("/api/jargon/glossary")
     assert r.status_code == 200
     data = r.json()
     assert "constituency" in data
 
 @pytest.mark.asyncio
 async def test_translate_endpoint(async_client):
-    """POST /api/translate replaces jargon."""
-    r = await async_client.post("/api/translate", json={"text": "Check your Constituency"})
+    """POST /api/jargon/translate replaces jargon."""
+    r = await async_client.post("/api/jargon/translate", json={"text": "Check your Constituency"})
     assert r.status_code == 200
     data = r.json()
     assert "voting area" in data["translated"].lower()
