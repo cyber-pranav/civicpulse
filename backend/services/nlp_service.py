@@ -6,7 +6,16 @@ from google.cloud import language_v1
 from backend.utils.logger import Logger
 from backend.utils.cache import cache_get, cache_set
 
-_client = language_v1.LanguageServiceClient()
+_client = None
+
+def _get_client():
+    global _client
+    if _client is None:
+        try:
+            _client = language_v1.LanguageServiceClient()
+        except Exception as e:
+            Logger.error(f"NLPService init failed: {e}")
+    return _client
 
 async def analyze_sentiment(text: str) -> dict:
     """
@@ -23,7 +32,10 @@ async def analyze_sentiment(text: str) -> dict:
             content=text,
             type_=language_v1.Document.Type.PLAIN_TEXT
         )
-        response = _client.analyze_sentiment(
+        client = _get_client()
+        if not client:
+            raise Exception("NLP Client not initialized")
+        response = client.analyze_sentiment(
             request={"document": document}
         )
         score = response.document_sentiment.score

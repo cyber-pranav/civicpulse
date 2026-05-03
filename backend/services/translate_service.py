@@ -6,7 +6,16 @@ from google.cloud import translate_v2 as translate
 from backend.utils.logger import Logger
 from backend.utils.cache import cache_get, cache_set
 
-_client = translate.Client()
+_client = None
+
+def _get_client():
+    global _client
+    if _client is None:
+        try:
+            _client = translate.Client()
+        except Exception as e:
+            Logger.error(f"TranslateService init failed: {e}")
+    return _client
 
 SUPPORTED_LANGUAGES = {
     "en": "English", "hi": "Hindi", "bn": "Bengali",
@@ -29,7 +38,10 @@ async def translate_texts(texts: list[str], target_language: str) -> list[str]:
     if cached:
         return cached
     try:
-        results = _client.translate(texts, target_language=target_language)
+        client = _get_client()
+        if not client:
+            raise Exception("Translate Client not initialized")
+        results = client.translate(texts, target_language=target_language)
         translated = [r["translatedText"] for r in results]
         cache_set(cache_key, translated, ttl=86400)
         return translated
