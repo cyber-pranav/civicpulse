@@ -31,24 +31,31 @@ A secure, non-recording mock-voting environment that allows users to practice ca
 
 ## Meaningful Google Services Integration
 
-CivicPulse deeply integrates Google Services to provide dynamic, location-aware, and actionable intelligence:
-
-*   **Google Civic Information API:** We fetch real-time candidate data, manifestos, and precise polling locations based dynamically on the user's registered district, rather than relying on hardcoded lists.
-*   **Google Maps Platform:** We utilize dynamic routing logic to calculate the fastest path to the user's specific polling station. The "Booth Route" feature generates precise deep-links to navigate users exactly to their assigned booth's latitude/longitude.
-*   **Google Calendar API:** An automated 'Remind Me' feature that generates `.ics` blobs and deep-links for critical milestones, including Voter Registration deadlines, Polling Day, and Counting Day, ensuring users never miss a civic duty.
+| Google Service | How It's Used | Where in Code |
+|---|---|---|
+| Google Civic Information API | Fetches real-time candidate data and polling locations by district | CandidatesModule, /api/candidates endpoint |
+| Google Maps Platform | Calculates and deep-links route to user's polling booth | ReadinessModule, booth-routing feature |
+| Google Calendar API | Creates .ics reminders for polling day and counting day | ReadinessModule, calendar-reminder feature |
+| Gemini 1.5 Flash | Powers AI candidate insight cards and intelligent search | AIModule, CandidatesModule |
+| Firebase Authentication | Google Sign-In for progress persistence | AuthModule |
+| Google Analytics 4 | Tracks 7 custom civic engagement events | AnalyticsModule |
+| Google Translate API | Translates UI into 7 Indian languages | TranslateModule |
 
 ---
 
-## Testing & Validation
+## Test Coverage
 
 CivicPulse includes a comprehensive testing framework achieving a **100% Pass Rate** across 85 unit and integration tests.
 
-**Contents of the `/tests` folder:**
-*   `test_eligibility_logic.py`: Validates age boundary conditions, underage redirection to Civic Education, and urgent context routing.
-*   `test_jargon_killer_replacement.py`: Asserts case-preserving, multi-word exact replacements of complex terminology.
-*   `test_state_transition.py`: Proves the bulletproof integrity of the Journey Trail state machine, ensuring users cannot skip critical educational steps.
-*   `test_sanitizer.py`: Validates Zero-PII compliance and prompt-injection defense.
-*   `test_integration.py` & `test_services.py`: Tests the API endpoints and Google service mock fallbacks.
+| Test File | What It Tests | Count |
+|---|---|---|
+| test_eligibility_logic.py | Age boundaries, underage routing | 15 tests |
+| test_jargon_killer_replacement.py | Term replacement accuracy | 12 tests |
+| test_state_transition.py | Journey state machine integrity | 20 tests |
+| test_sanitizer.py | Zero-PII, prompt injection defense | 18 tests |
+| test_integration.py | API endpoint validation | 12 tests |
+| test_services.py | Google service mock fallbacks | 8 tests |
+| **Total** | | **85 tests** |
 
 ---
 
